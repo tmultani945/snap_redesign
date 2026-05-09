@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Qube — Dashboard Design Explorations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0E13; --surface: #11151C; --surface-2: #161B24;
+    --border: #1F2632; --border-2: #2A3242;
+    --fg: #E6E9EF; --fg-2: #98A2B3; --fg-3: #667085;
+    --accent: #3F8CFF; --green: #22C55E; --amber: #F59E0B; --red: #EF4444; --violet: #A78BFA;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  body { margin: 0; font-family: "Inter", system-ui, sans-serif; background: #050709; color: var(--fg); }
+  /* Shared artboard chrome */
+  .ab { width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  .ab-top { height: 48px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand-logo { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--violet)); }
+  .crumb { color: var(--fg-3); font-size: 13px; }
+  .pill { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .body { flex: 1; padding: 32px 40px; overflow: hidden; }
+  .mono { font-family: var(--mono); }
+  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-2); background: var(--surface); color: var(--fg); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-pri { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-pri:hover { filter: brightness(1.1); }
+
+  /* ============= IDEA A — Editorial / Magazine ============= */
+  .a-body { padding: 0; height: 100%; display: grid; grid-template-columns: 1.05fr 0.95fr; }
+  .a-left { padding: 56px 56px 40px; display: flex; flex-direction: column; justify-content: space-between; }
+  .a-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 24px; }
+  .a-h1 { font-family: var(--serif); font-size: 92px; line-height: 0.92; letter-spacing: -0.03em; font-weight: 400; margin: 0 0 28px; }
+  .a-h1 em { font-style: italic; color: var(--accent); }
+  .a-lede { font-size: 17px; line-height: 1.5; color: var(--fg-2); max-width: 460px; margin: 0 0 32px; }
+  .a-cta { display: flex; gap: 12px; }
+  .a-foot { display: flex; gap: 28px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .a-stat { }
+  .a-stat-n { font-family: var(--serif); font-size: 36px; line-height: 1; }
+  .a-stat-l { font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; font-family: var(--mono); }
+  .a-right { background: linear-gradient(180deg, #0F1521 0%, #0A0D14 100%); position: relative; overflow: hidden; padding: 48px; display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+  .a-right::before { content: ""; position: absolute; inset: 0; background:
+    radial-gradient(600px 300px at 80% 20%, rgba(63,140,255,0.18), transparent 60%),
+    radial-gradient(500px 250px at 20% 80%, rgba(167,139,250,0.14), transparent 60%); }
+  .a-card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .a-card-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .a-name { font-weight: 600; font-size: 14px; }
+  .a-state { font-family: var(--mono); font-size: 11px; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s infinite; }
+  .dot-g { background: var(--green); }
+  .dot-v { background: var(--violet); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .a-meta { font-size: 12px; color: var(--fg-3); display: flex; gap: 14px; }
+  .a-progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+  .a-progress span { display: block; height: 100%; background: var(--accent); width: 30%; }
+  .a-card.ext-a { width: 280px; align-self: flex-end; }
+  .a-card.ext-b { width: 320px; }
+  .a-card.ext-c { width: 260px; align-self: flex-end; opacity: 0.7; }
+
+  /* ============= IDEA B — Command-K Console ============= */
+  .b-body { padding: 0; display: flex; flex-direction: column; height: 100%; }
+  .b-hero { padding: 64px 60px 32px; text-align: center; }
+  .b-eye { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: rgba(63,140,255,0.12); color: var(--accent); font-size: 12px; font-weight: 600; margin-bottom: 22px; }
+  .b-h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.025em; margin: 0 0 16px; line-height: 1.1; }
+  .b-lede { color: var(--fg-2); font-size: 16px; max-width: 580px; margin: 0 auto 28px; line-height: 1.55; }
+  .b-cmdk { max-width: 640px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border-2); border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 4px rgba(63,140,255,0.08); overflow: hidden; }
+  .b-cmd-input { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); font-size: 15px; }
+  .b-prompt { color: var(--accent); font-family: var(--mono); }
+  .b-input-text { color: var(--fg); }
+  .b-cursor { width: 2px; height: 18px; background: var(--accent); animation: blink 1s infinite; display: inline-block; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .b-kbd { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--fg-3); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); }
+  .b-results { padding: 8px; }
+  .b-group { padding: 8px 12px 4px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--fg-3); text-transform: uppercase; }
+  .b-item { padding: 10px 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .b-item.sel { background: rgba(63,140,255,0.1); }
+  .b-item-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .b-item-name { font-size: 14px; font-weight: 500; }
+  .b-item-sub { font-size: 12px; color: var(--fg-3); margin-top: 2px; }
+  .b-item-tag { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--fg-3); padding: 2px 8px; border: 1px solid var(--border); border-radius: 4px; }
+  .b-tip { margin-top: 28px; text-align: center; color: var(--fg-3); font-size: 12px; }
+  .b-tip kbd { font-family: var(--mono); padding: 2px 6px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; }
+
+  /* ============= IDEA C — Story / Onboarding-first ============= */
+  .c-body { padding: 0; display: grid; grid-template-rows: auto 1fr; height: 100%; }
+  .c-hero { padding: 40px 48px 24px; }
+  .c-h1 { font-size: 30px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 8px; }
+  .c-h1 span { color: var(--accent); }
+  .c-sub { color: var(--fg-2); font-size: 15px; }
+  .c-stage { padding: 0 48px 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .c-step { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; position: relative; overflow: hidden; }
+  .c-step.active { border-color: var(--accent); background: linear-gradient(180deg, rgba(63,140,255,0.08), var(--surface)); }
+  .c-num { font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.1em; }
+  .c-step.active .c-num { color: var(--accent); }
+  .c-step-title { font-size: 17px; font-weight: 600; margin: 14px 0 8px; }
+  .c-step-text { font-size: 13px; color: var(--fg-2); line-height: 1.5; margin-bottom: 16px; }
+  .c-visual { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; min-height: 110px; }
+  .c-mini-card { background: var(--surface-2); border-radius: 6px; padding: 8px 10px; font-size: 11px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .c-mini-card:last-child { margin-bottom: 0; }
+  .c-mini-icon { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); flex-shrink: 0; opacity: 0.5; }
+  .c-tl { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
+  .c-node { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border-2); }
+  .c-node.done { background: var(--green); border-color: var(--green); }
+  .c-node.now { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px rgba(63,140,255,0.25); }
+  .c-line { flex: 1; height: 2px; background: var(--border-2); margin: 0 4px; }
+  .c-line.done { background: var(--green); }
+  .c-files { display: flex; gap: 6px; flex-wrap: wrap; }
+  .c-tag { font-family: var(--mono); font-size: 10px; padding: 3px 8px; background: var(--surface-2); border-radius: 4px; color: var(--fg-2); }
+
+  /* ============= IDEA D — Live System Status (Operator) ============= */
+  .d-body { padding: 0; display: grid; grid-template-columns: 320px 1fr; height: 100%; }
+  .d-side { background: var(--surface); border-right: 1px solid var(--border); padding: 28px 24px; display: flex; flex-direction: column; gap: 24px; }
+  .d-brand-block { padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .d-brand-name { font-family: var(--serif); font-size: 36px; line-height: 1; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .d-brand-tag { font-size: 12px; color: var(--fg-3); }
+  .d-section-h { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--fg-3); margin-bottom: 12px; }
+  .d-stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .d-stat-row:last-child { border-bottom: none; }
+  .d-stat-l { font-size: 13px; color: var(--fg-2); }
+  .d-stat-v { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .d-stat-v.up { color: var(--green); }
+  .d-stat-v.dn { color: var(--red); }
+  .d-cta-block { margin-top: auto; padding: 18px; background: rgba(63,140,255,0.06); border: 1px solid rgba(63,140,255,0.2); border-radius: 10px; }
+  .d-cta-block h4 { margin: 0 0 4px; font-size: 14px; }
+  .d-cta-block p { margin: 0 0 12px; font-size: 12px; color: var(--fg-2); line-height: 1.5; }
+
+  .d-main { padding: 32px 36px; overflow: hidden; display: flex; flex-direction: column; gap: 20px; }
+  .d-page-h { display: flex; justify-content: space-between; align-items: flex-start; }
+  .d-h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.015em; margin: 4px 0 6px; }
+  .d-time { font-family: var(--mono); font-size: 12px; color: var(--fg-3); display: flex; align-items: center; gap: 8px; }
+  .d-time .dot { width: 8px; height: 8px; }
+  .d-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .d-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .d-tile-l { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--fg-3); }
+  .d-tile-n { font-family: var(--mono); font-size: 28px; font-weight: 500; margin: 8px 0 4px; }
+  .d-tile-d { font-size: 11px; color: var(--fg-3); display: flex; align-items: center; gap: 4px; }
+  .spark { height: 30px; width: 100%; margin-top: 10px; }
+
+  .d-active { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .d-active-h { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .d-active-t { font-size: 14px; font-weight: 600; }
+  .d-row { padding: 14px 18px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 110px 1fr 100px 100px 80px; gap: 16px; align-items: center; font-size: 13px; }
+  .d-row:last-child { border-bottom: none; }
+  .d-rname { font-weight: 500; }
+  .d-rtype { font-family: var(--mono); font-size: 11px; color: var(--fg-3); }
+  .d-iter-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .d-iter-bar span { display: block; height: 100%; background: var(--accent); }
+  .d-status-pg { color: var(--accent); font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .d-status-fn { color: var(--violet); font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+
+  /* artboard label inside frames is suppressed by canvas — this is a self-contained */
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+/* ---- IDEA A — Editorial / Magazine ---- */
+const IdeaA = () => (
+  <div className="ab">
+    <div className="ab-top">
+      <div className="brand"><div className="brand-logo"/>Qube</div>
+      <div className="crumb">/ Welcome</div>
+    </div>
+    <div className="a-body">
+      <div className="a-left">
+        <div>
+          <div className="a-eyebrow">Remote mobile network testing · v3.2</div>
+          <h1 className="a-h1">Real phones.<br/>Real networks.<br/><em>From anywhere.</em></h1>
+          <p className="a-lede">Run voice, SMS and VoIP tests on physical smartphones — and turn every test into structured, evidence-backed proof you can replay, share, and trust.</p>
+          <div className="a-cta">
+            <button className="btn btn-pri">Start your first test →</button>
+            <button className="btn">Watch 90-sec tour</button>
+          </div>
+        </div>
+        <div className="a-foot">
+          <div className="a-stat"><div className="a-stat-n">12k+</div><div className="a-stat-l">Tests / month</div></div>
+          <div className="a-stat"><div className="a-stat-n">99.4%</div><div className="a-stat-l">Capture fidelity</div></div>
+          <div className="a-stat"><div className="a-stat-n">38s</div><div className="a-stat-l">Avg setup</div></div>
+        </div>
+      </div>
+      <div className="a-right">
+        <div className="a-card ext-a">
+          <div className="a-card-h"><div className="a-name">VoIP_Run_42</div><div className="a-state"><span className="dot"/>DIALING</div></div>
+          <div className="a-meta"><span className="mono">VOIP_MO_MT</span><span>iter 3/10</span></div>
+          <div className="a-progress"><span/></div>
+        </div>
+        <div className="a-card ext-b">
+          <div className="a-card-h"><div className="a-name">SMS_Validate_88</div><div className="a-state"><span className="dot dot-v"/>FINALIZING</div></div>
+          <div className="a-meta"><span className="mono">MO_MT_SMS</span><span>iter 8/8 · uploading</span></div>
+        </div>
+        <div className="a-card ext-c">
+          <div className="a-card-h"><div className="a-name">R2R_call_a</div><div className="a-state"><span className="dot dot-g"/>COMPLETED</div></div>
+          <div className="a-meta"><span className="mono">EXT_MO_MT</span><span>5/5 passed</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---- IDEA B — Command-K Console ---- */
+const IdeaB = () => (
+  <div className="ab">
+    <div className="ab-top">
+      <div className="brand"><div className="brand-logo"/>Qube</div>
+      <div className="crumb">/ Welcome</div>
+    </div>
+    <div className="b-body">
+      <div className="b-hero">
+        <div className="b-eye"><span style={{width:8,height:8,borderRadius:99,background:"var(--accent)"}}/>Welcome to Qube</div>
+        <h1 className="b-h1">What do you want to test?</h1>
+        <p className="b-lede">Type a phone number, paste a device serial, or just describe the test in plain English — Qube does the rest.</p>
+        <div className="b-cmdk">
+          <div className="b-cmd-input">
+            <span className="b-prompt">▸</span>
+            <span className="b-input-text">Send an SMS to <b style={{color:"var(--fg)"}}>+1 555-0188</b> from Pixel 7</span>
+            <span className="b-cursor"/>
+            <span className="b-kbd">⌘ K</span>
+          </div>
+          <div className="b-results">
+            <div className="b-group">Suggested tests</div>
+            <div className="b-item sel">
+              <div className="b-item-icon">SMS</div>
+              <div>
+                <div className="b-item-name">Send short SMS without validation</div>
+                <div className="b-item-sub">MO: Pixel 7 · Target: +1 555-0188 · No MT required</div>
+              </div>
+              <span className="b-item-tag">MO_SMS</span>
+            </div>
+            <div className="b-item">
+              <div className="b-item-icon">SMS</div>
+              <div>
+                <div className="b-item-name">Validate SMS delivery and content</div>
+                <div className="b-item-sub">Need an MT device — Qube will pick one</div>
+              </div>
+              <span className="b-item-tag">MO_MT_SMS</span>
+            </div>
+            <div className="b-group" style={{marginTop:8}}>Recent</div>
+            <div className="b-item">
+              <div className="b-item-icon" style={{color:"var(--violet)"}}>VP</div>
+              <div>
+                <div className="b-item-name">VoIP_Run_42 · re-run</div>
+                <div className="b-item-sub">Last run 14:32 · 9/10 passed</div>
+              </div>
+              <span className="b-item-tag">↩</span>
+            </div>
+          </div>
+        </div>
+        <div className="b-tip">Press <kbd>⌘ K</kbd> from anywhere · <kbd>?</kbd> for shortcuts · <kbd>g r</kbd> jump to runs</div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---- IDEA C — Story / Onboarding-first ---- */
+const IdeaC = () => (
+  <div className="ab">
+    <div className="ab-top">
+      <div className="brand"><div className="brand-logo"/>Qube</div>
+      <div className="crumb">/ Welcome</div>
+      <div style={{marginLeft:"auto"}}><span className="pill" style={{background:"rgba(63,140,255,0.12)",color:"var(--accent)"}}>1 of 4 done</span></div>
+    </div>
+    <div className="c-body">
+      <div className="c-hero">
+        <h1 className="c-h1">A test in Qube is <span>four moves.</span></h1>
+        <div className="c-sub">Click any step to see what it looks like in the product.</div>
+      </div>
+      <div className="c-stage">
+        <div className="c-step">
+          <div className="c-num">01 — PICK</div>
+          <div className="c-step-title">Choose a test</div>
+          <div className="c-step-text">Voice, SMS, VoIP, or remote-to-remote — five focused entry points.</div>
+          <div className="c-visual">
+            <div className="c-mini-card"><span className="c-mini-icon" style={{background:"var(--accent)",opacity:1}}/>Remote VoIP</div>
+            <div className="c-mini-card"><span className="c-mini-icon"/>Send SMS</div>
+            <div className="c-mini-card"><span className="c-mini-icon"/>Validate SMS</div>
+          </div>
+        </div>
+        <div className="c-step active">
+          <div className="c-num">02 — ASSIGN</div>
+          <div className="c-step-title">Pick devices</div>
+          <div className="c-step-text">Drop in lab phones, registered external devices, or AWS DIDs.</div>
+          <div className="c-visual">
+            <div className="c-mini-card"><span className="c-mini-icon" style={{background:"var(--green)",opacity:1}}/>Galaxy S22 · ONLINE</div>
+            <div className="c-mini-card"><span className="c-mini-icon" style={{background:"var(--green)",opacity:1}}/>+1 214-257…</div>
+          </div>
+        </div>
+        <div className="c-step">
+          <div className="c-num">03 — RUN</div>
+          <div className="c-step-title">Watch live</div>
+          <div className="c-step-text">A timeline shows every action, every device, every state change.</div>
+          <div className="c-visual">
+            <div className="c-tl">
+              <div className="c-node done"/><div className="c-line done"/>
+              <div className="c-node done"/><div className="c-line done"/>
+              <div className="c-node now"/><div className="c-line"/>
+              <div className="c-node"/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"var(--fg-3)",marginTop:8,fontFamily:"var(--mono)"}}>
+              <span>DIAL</span><span>RING</span><span>TALK</span><span>END</span>
+            </div>
+          </div>
+        </div>
+        <div className="c-step">
+          <div className="c-num">04 — REVIEW</div>
+          <div className="c-step-title">Get evidence</div>
+          <div className="c-step-text">Summary, sessions, artifacts. Every test ends with proof.</div>
+          <div className="c-visual">
+            <div className="c-files">
+              <span className="c-tag">▶ video.mp4</span>
+              <span className="c-tag">📊 kpi.csv</span>
+              <span className="c-tag">📄 call.log</span>
+              <span className="c-tag">📍 map</span>
+              <span className="c-tag">⬇ ZIP</span>
+            </div>
+            <div style={{marginTop:14,padding:"8px 10px",background:"rgba(34,197,94,0.1)",borderRadius:6,fontSize:11,color:"var(--green)",fontWeight:600}}>✓ 9 of 10 iterations passed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---- IDEA D — Live System Status (Operator) ---- */
+const Sparkline = ({ color = "var(--accent)" }) => (
+  <svg className="spark" viewBox="0 0 120 30" preserveAspectRatio="none">
+    <polyline points="0,22 12,18 24,20 36,14 48,16 60,10 72,12 84,6 96,9 108,4 120,7"
+      fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const IdeaD = () => (
+  <div className="ab">
+    <div className="d-body">
+      <div className="d-side">
+        <div className="d-brand-block">
+          <div className="d-brand-name">Qube<span style={{color:"var(--accent)"}}>.</span></div>
+          <div className="d-brand-tag">Remote mobile testing</div>
+        </div>
+        <div>
+          <div className="d-section-h">System</div>
+          <div className="d-stat-row"><span className="d-stat-l">Lab agents</span><span className="d-stat-v up">●●●●● 5/5</span></div>
+          <div className="d-stat-row"><span className="d-stat-l">RabbitMQ</span><span className="d-stat-v up">healthy</span></div>
+          <div className="d-stat-row"><span className="d-stat-l">AWS Connect</span><span className="d-stat-v up">11 DIDs</span></div>
+          <div className="d-stat-row"><span className="d-stat-l">S3 uploads</span><span className="d-stat-v">2 in flight</span></div>
+        </div>
+        <div>
+          <div className="d-section-h">Devices</div>
+          <div className="d-stat-row"><span className="d-stat-l">Lab pool</span><span className="d-stat-v">18/20</span></div>
+          <div className="d-stat-row"><span className="d-stat-l">External</span><span className="d-stat-v dn">7/9</span></div>
+          <div className="d-stat-row"><span className="d-stat-l">Booked now</span><span className="d-stat-v">4</span></div>
+        </div>
+        <div className="d-cta-block">
+          <h4>Run your first test</h4>
+          <p>Pick a test type and Qube will guide you through device selection.</p>
+          <button className="btn btn-pri" style={{width:"100%",justifyContent:"center"}}>Start →</button>
+        </div>
+      </div>
+      <div className="d-main">
+        <div className="d-page-h">
+          <div>
+            <div className="d-time"><span className="dot dot-g"/>All systems nominal · today 14:42 · DAL-1 · DAL-2</div>
+            <h1 className="d-h1">Operations</h1>
+          </div>
+          <button className="btn">⚙ Customize</button>
+        </div>
+        <div className="d-board">
+          <div className="d-tile"><div className="d-tile-l">Pass rate · 24h</div><div className="d-tile-n">92%</div><div className="d-tile-d" style={{color:"var(--green)"}}>▲ 2.1pp</div><Sparkline color="var(--green)"/></div>
+          <div className="d-tile"><div className="d-tile-l">Tests run</div><div className="d-tile-n">37</div><div className="d-tile-d" style={{color:"var(--green)"}}>▲ 5</div><Sparkline/></div>
+          <div className="d-tile"><div className="d-tile-l">Avg duration</div><div className="d-tile-n">1m 12s</div><div className="d-tile-d" style={{color:"var(--green)"}}>▼ 4s</div><Sparkline color="var(--violet)"/></div>
+          <div className="d-tile"><div className="d-tile-l">Failures</div><div className="d-tile-n">3</div><div className="d-tile-d" style={{color:"var(--red)"}}>▲ 1</div><Sparkline color="var(--red)"/></div>
+        </div>
+        <div className="d-active">
+          <div className="d-active-h">
+            <div className="d-active-t">Active runs · 3</div>
+            <span className="mono" style={{fontSize:11,color:"var(--fg-3)"}}>auto-refresh 5s</span>
+          </div>
+          <div className="d-row">
+            <div><div className="d-rname">VoIP_Run_42</div><div className="d-rtype">VOIP_MO_MT</div></div>
+            <div className="d-iter-bar"><span style={{width:"30%"}}/></div>
+            <span className="d-status-pg"><span className="dot"/>PROGRESS</span>
+            <span className="mono" style={{fontSize:12,color:"var(--fg-2)"}}>iter 3/10</span>
+            <span className="mono" style={{fontSize:12,color:"var(--fg-3)"}}>3m 8s</span>
+          </div>
+          <div className="d-row">
+            <div><div className="d-rname">SMS_Validate_88</div><div className="d-rtype">MO_MT_SMS</div></div>
+            <div className="d-iter-bar"><span style={{width:"100%",background:"var(--violet)"}}/></div>
+            <span className="d-status-fn"><span className="dot dot-v"/>FINALIZING</span>
+            <span className="mono" style={{fontSize:12,color:"var(--fg-2)"}}>iter 8/8</span>
+            <span className="mono" style={{fontSize:12,color:"var(--fg-3)"}}>2m 11s</span>
+          </div>
+          <div className="d-row">
+            <div><div className="d-rname">R2R_call_test_a</div><div className="d-rtype">EXT_MO_MT</div></div>
+            <div className="d-iter-bar"><span style={{width:"66%"}}/></div>
+            <span className="d-status-pg"><span className="dot"/>PROGRESS</span>
+            <span className="mono" style={{fontSize:12,color:"var(--fg-2)"}}>iter 2/3</span>
+            <span className="mono" style={{fontSize:12,color:"var(--fg-3)"}}>38s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const App = () => (
+  <DesignCanvas title="Qube — Dashboard Concepts" subtitle="Four directions for the welcome experience">
+    <DCSection id="welcome" title="Welcome / Dashboard concepts">
+      <DCArtboard id="A" label="A · Editorial — bold serif, brand-led" width={1280} height={780}>
+        <IdeaA/>
+      </DCArtboard>
+      <DCArtboard id="B" label="B · Command-K — type-to-test, fastest path" width={1280} height={780}>
+        <IdeaB/>
+      </DCArtboard>
+      <DCArtboard id="C" label="C · Story — 4-step onboarding journey" width={1280} height={780}>
+        <IdeaC/>
+      </DCArtboard>
+      <DCArtboard id="D" label="D · Operator — live system status board" width={1280} height={780}>
+        <IdeaD/>
+      </DCArtboard>
+    </DCSection>
+  </DesignCanvas>
+);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
