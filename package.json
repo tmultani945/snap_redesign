@@ -1,0 +1,23 @@
+{
+  "name": "snap_qube_redesign_2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmultani945/snap_redesign.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tmultani945/snap_redesign/issues"
+  },
+  "homepage": "https://github.com/tmultani945/snap_redesign#readme",
+  "dependencies": {
+    "puppeteer": "^24.43.0"
+  }
+}
