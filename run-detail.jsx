@@ -5,8 +5,8 @@ const RunDetail = ({ runId, runs, onBack }) => {
   const isLive = run.status === "PROGRESS" || run.status === "FINALIZING";
   const [tab, setTab] = pS(isLive ? "live" : "summary");
   const tabs = isLive
-    ? [["live","Live"],["summary","Summary"],["session","Session"],["artifact","Artifact"]]
-    : [["summary","Summary"],["session","Session"],["artifact","Artifact"]];
+    ? [["live","Live"],["summary","Summary"],["session","Session"],["artifact","Artifact"],["kpi","KPI Analysis"]]
+    : [["summary","Summary"],["session","Session"],["artifact","Artifact"],["kpi","KPI Analysis"]];
 
   return (
     <div className="page run-detail">
@@ -41,9 +41,10 @@ const RunDetail = ({ runId, runs, onBack }) => {
       </div>
 
       {tab === "live"     && <RunLive run={run} />}
-      {tab === "summary"  && <ReportSummary run={run} onJumpSession={()=>setTab("session")} />}
-      {tab === "session"  && <ReportSession run={run} onArtifact={()=>setTab("artifact")} />}
+      {tab === "summary"  && <SummaryTab run={window.REPORT_RUN} t={{ showKpiCharts: true, showWaterfall: true, mapColor: "rsrp", denseMatrix: false }} />}
+      {tab === "session"  && <SessionTab run={window.REPORT_RUN} />}
       {tab === "artifact" && <ReportArtifact run={run} />}
+      {tab === "kpi"      && <KpiAnalysisTab run={window.REPORT_RUN} />}
     </div>
   );
 };
@@ -51,6 +52,16 @@ const RunDetail = ({ runId, runs, onBack }) => {
 /* ============================================================
    LIVE
    ============================================================ */
+const interpPos = (route, t) => {
+  const [sLat, sLng] = route.start;
+  const [eLat, eLng] = route.end;
+  const wob = Math.sin(t * Math.PI * 3) * 0.0035 + Math.cos(t * Math.PI * 1.6) * 0.0022;
+  return [
+    sLat + (eLat - sLat) * t + wob,
+    sLng + (eLng - sLng) * t + Math.sin(t * Math.PI * 2) * 0.005,
+  ];
+};
+
 const RunLive = ({ run }) => {
   const [events, setEvents] = pS([
     { t: "14:33:02.103", k: "snapbox", msg: "POST /SnapBox/api/v1/telephony/devices/S22-EXT-001/call/initiate" },
@@ -61,6 +72,21 @@ const RunLive = ({ run }) => {
     { t: "14:33:05.871", k: "state",   msg: "MO callstate → CONNECTED" },
   ]);
   const [showRaw, setShowRaw] = pS(false);
+
+  const tRef = uR((run.iter - 1) / run.total);
+  const [livePos, setLivePos] = pS(() =>
+    run.route ? interpPos(run.route, tRef.current) : null
+  );
+
+  // advance device position along route in sync with event tick
+  pE(() => {
+    if (!run.route) return;
+    const id = setInterval(() => {
+      tRef.current = Math.min(tRef.current + 0.008, 0.98);
+      setLivePos(interpPos(run.route, tRef.current));
+    }, 2200);
+    return () => clearInterval(id);
+  }, []);
 
   // simulate event tail
   pE(() => {
@@ -93,6 +119,12 @@ const RunLive = ({ run }) => {
   return (
     <div className="run-body grid-12">
       <div className="col-7">
+        {run.route && (
+          <Card title="Live route" action={<Tag><span className="live-dot" style={{display:"inline-block",marginRight:4}}/>LIVE</Tag>}>
+            <ReportMap run={run} mode="live" position={livePos} />
+          </Card>
+        )}
+
         <Card title={`Iteration progress · ${run.iter} of ${run.total}`}>
           <IterDots done={run.iter - 1} total={run.total} />
           <div className="iter-meta">
@@ -182,165 +214,6 @@ const RoleCard = ({ role, device, voipPhone, state, recent }) => (
   </div>
 );
 
-/* ============================================================
-   SUMMARY
-   ============================================================ */
-const ReportSummary = ({ run, onJumpSession }) => {
-  const ok = run.status === "COMPLETED";
-  const passed = parseInt((run.pass||"0/0").split("/")[0]);
-  const total = parseInt((run.pass||"0/0").split("/")[1]) || run.total;
-  return (
-    <div className="run-body">
-      <div className={`headline-card ${ok ? "ok" : "fail"}`}>
-        <div className="headline-icon">
-          {ok ? <Icon name="check" size={28}/> : <Icon name="x" size={28}/>}
-        </div>
-        <div className="headline-text">
-          <h2>{ok ? `${passed} of ${total} iterations passed` : "Run failed"} · total {fmtDur(run.durSec)}</h2>
-          <p>{ok
-            ? `One outlier on iteration 6 — MO_DIALING_MT exceeded 15 000 ms timeout. Other iterations within bounds.`
-            : `MO_DIALING_MT did not reach DIALING within startTimeout (15 000 ms). External device returned no callstate.`}
-          </p>
-        </div>
-        <div className="headline-actions">
-          <Btn kind="primary" icon="download">Download ZIP</Btn>
-          <Btn icon="arrow" onClick={onJumpSession}>Open failed iteration</Btn>
-        </div>
-      </div>
-
-      <div className="kpi-row-grid grid-12-tiles">
-        <KpiTile label="Pass rate"      value={`${Math.round(passed/total*100)}%`} sub="9 of 10" />
-        <KpiTile label="Avg setup time" value="2.4s" sub="< 5s threshold" />
-        <KpiTile label="Avg call time"  value="38s"  sub="—" />
-        <KpiTile label="Avg RSRP"       value="-82" sub="dBm · good" />
-      </div>
-
-      <Card title="Iteration matrix" action={<Btn icon="bar">CSV</Btn>}>
-        <table className="data-table compact">
-          <thead><tr><th>#</th><th>Status</th><th>Setup</th><th>Call</th><th>End</th><th>Artifacts</th><th></th></tr></thead>
-          <tbody>
-            {Array.from({length: total}).map((_, i) => {
-              const failed = i === 5; // iter 6
-              return (
-                <tr key={i} className={failed ? "row-fail" : ""} onClick={onJumpSession}>
-                  <td className="mono">{i+1}</td>
-                  <td><StatusChip status={failed ? "FAILED" : "PASS"} size="sm" /></td>
-                  <td className="mono">{failed ? "timeout" : `${(2 + Math.random()*0.7).toFixed(1)}s`}</td>
-                  <td className="mono">{failed ? "—" : `${(36 + Math.random()*4).toFixed(0)}s`}</td>
-                  <td className="mono">{failed ? "—" : "ok"}</td>
-                  <td>
-                    <Tag mono>VIDEO</Tag>
-                    {!failed && <Tag mono>NETWORK_KPI</Tag>}
-                    <Tag mono>CALL_LOG</Tag>
-                  </td>
-                  <td><Icon name="chevron" size={12} /></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </Card>
-
-      <Card title="Signal Quality · iteration 1" action={<Btn icon="eye">Open KPI Analysis</Btn>}>
-        <KpiChart />
-      </Card>
-    </div>
-  );
-};
-
-/* ============================================================
-   SESSION
-   ============================================================ */
-const ReportSession = ({ run, onArtifact }) => {
-  const total = parseInt((run.pass||"0/0").split("/")[1]) || run.total;
-  const [iter, setIter] = pS(6); // failed iter
-  const failed = iter === 6;
-  return (
-    <div className="run-body session-grid">
-      <aside className="session-rail">
-        <div className="rail-head mono">{total} iterations</div>
-        {Array.from({length: total}).map((_, i) => {
-          const f = i === 5;
-          return (
-            <button key={i} className={`rail-iter ${iter===i+1 ? "active":""} ${f ? "rail-fail":""}`} onClick={()=>setIter(i+1)}>
-              <StatusChip status={f ? "FAILED" : "PASS"} size="sm" />
-              <span className="rail-iter-name">iter {i+1}</span>
-              <span className="mono rail-iter-dur">{f ? "15.1s" : `${(38 + Math.random()*4).toFixed(0)}s`}</span>
-            </button>
-          );
-        })}
-      </aside>
-
-      <div className="session-detail">
-        <Card title={`Iteration ${iter} · ${failed ? "FAILED" : "PASSED"} · 14:38:02 → 14:38:${failed ? 17 : 42}`}>
-          <ActionTimeline actions={[
-            { enum:"MO_DIALING_MT",  human:"MO dials MT",        status: failed ? "FAILED" : "PASS" },
-            { enum:"MT_RINGING",     human:"MT rings",           status: failed ? "IDLE" : "PASS" },
-            { enum:"MO_MT_SPEAKING", human:"Verify connected",   status: failed ? "IDLE" : "PASS" },
-            { enum:"MT_WAIT_END",    human:"Call ends",          status: failed ? "IDLE" : "PASS" },
-          ]} />
-        </Card>
-
-        <Card title="Selected step · MO_DIALING_MT">
-          <div className="step-grid">
-            <Row label="Human label"   v="MO dials MT" />
-            <Row label="Enum"          v={<span className="mono">MO_DIALING_MT</span>} />
-            <Row label="Started"       v={<span className="mono">14:38:02.103</span>} />
-            <Row label="Ended"         v={<span className="mono">{failed ? "14:38:17.211" : "14:38:04.812"}</span>} />
-            <Row label="Duration"      v={<span className="mono">{failed ? "15.108s" : "2.709s"}</span>} />
-            <Row label="Status"        v={<StatusChip status={failed ? "FAILED" : "PASS"} size="sm" />} />
-            {failed && <Row label="Errors" fullCol v={
-              <div className="err-block">
-                <div className="err-head"><span className="mono err-code">[400]</span> Did not reach DIALING within 15 000 ms</div>
-                <div className="err-meta mono">setExternalMoMtStartTimeout fired · external device returned no callstate</div>
-              </div>
-            } />}
-          </div>
-        </Card>
-
-        <Card title="Per-device state at this step">
-          <div className="device-state-grid">
-            <RoleCard role="EXTERNAL_MO" device={DEVICES.ext1} state={failed ? "IDLE" : "DIALING"} recent={[
-              "RMQ DIAL sent",
-              failed ? "no callstate received" : "callstate DIALING",
-            ]} />
-            <RoleCard role={run.type === "VOIP_MO_MT" ? "VOIP_MT" : "MT"} device={run.type === "VOIP_MO_MT" ? null : DEVICES.mt1} voipPhone="+1 214-257-0986" state={failed ? "—" : "RINGING"} recent={[
-              failed ? "n/a" : "callstate RINGING",
-            ]} />
-          </div>
-        </Card>
-
-        <Card title="Linked evidence" action={<Btn icon="arrow" onClick={onArtifact}>All artifacts</Btn>}>
-          <div className="link-evidence">
-            <button className="evidence-row" onClick={onArtifact}>
-              <Icon name="video" size={16} />
-              <span className="ev-name mono">run42_iter{iter}.mp4</span>
-              <span className="ev-meta">12.4 MB · {failed ? "12s" : "42s"}</span>
-              <Btn icon="play">Preview</Btn>
-              <Btn icon="download">Download</Btn>
-            </button>
-            <button className="evidence-row" onClick={onArtifact}>
-              <Icon name="file" size={16} />
-              <span className="ev-name mono">run42_calls.txt</span>
-              <span className="ev-meta">3 KB · CALL_LOG</span>
-              <Btn icon="eye">Preview</Btn>
-              <Btn icon="download">Download</Btn>
-            </button>
-            {!failed && (
-              <button className="evidence-row" onClick={onArtifact}>
-                <Icon name="network" size={16} />
-                <span className="ev-name mono">run42_iter{iter}.csv</span>
-                <span className="ev-meta">8 KB · NETWORK_KPI</span>
-                <Btn icon="eye">Preview</Btn>
-                <Btn icon="download">Download</Btn>
-              </button>
-            )}
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-};
 
 /* ============================================================
    ARTIFACT
@@ -479,42 +352,5 @@ const ReportArtifact = ({ run }) => {
   );
 };
 
-/* ============================================================
-   KPI CHART (inline SVG)
-   ============================================================ */
-const KpiChart = () => {
-  const W = 720, H = 200;
-  const data = uM(() => Array.from({length: 60}).map((_, i) => -82 + Math.sin(i/4)*4 + (Math.random()-0.5)*3), []);
-  const min = -100, max = -70;
-  const x = i => 40 + (i / (data.length-1)) * (W - 60);
-  const y = v => H - 24 - ((v - min) / (max - min)) * (H - 40);
-  const path = data.map((v, i) => `${i===0?"M":"L"} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
-  return (
-    <div className="kpi-chart-wrap">
-      <svg viewBox={`0 0 ${W} ${H}`} className="kpi-chart" preserveAspectRatio="none">
-        {/* threshold bands */}
-        <rect x="40" y={y(-80)} width={W-60} height={y(-90)-y(-80)} fill="var(--kpi-good)" opacity="0.08" />
-        <rect x="40" y={y(-90)} width={W-60} height={y(-100)-y(-90)} fill="var(--kpi-moderate)" opacity="0.10" />
-        {/* gridlines */}
-        {[-75,-85,-95].map(v => (
-          <g key={v}>
-            <line x1="40" x2={W-20} y1={y(v)} y2={y(v)} stroke="var(--border)" strokeDasharray="2 4" />
-            <text x="32" y={y(v)+4} fontSize="11" fill="var(--fg-tertiary)" textAnchor="end" fontFamily="JetBrains Mono">{v}</text>
-          </g>
-        ))}
-        <path d={path} fill="none" stroke="var(--accent)" strokeWidth="1.6" />
-        {/* outlier marker */}
-        <circle cx={x(36)} cy={y(data[36])} r="3.5" fill="var(--kpi-bad)" stroke="var(--bg-surface)" strokeWidth="2" />
-        <text x={W-20} y="14" fontSize="10" fill="var(--fg-secondary)" textAnchor="end" fontFamily="Inter">RSRP · dBm</text>
-      </svg>
-      <div className="chart-legend">
-        <span><i style={{background:"var(--accent)"}}/>Signal</span>
-        <span><i className="band-good"/>Good ≥ -80</span>
-        <span><i className="band-mod"/>Moderate -90 to -80</span>
-        <span><i className="band-bad"/>Bad &lt; -90</span>
-      </div>
-    </div>
-  );
-};
 
 window.RunDetail = RunDetail;

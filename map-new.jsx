@@ -1,6 +1,6 @@
 /* Leaflet map with route, KPI samples, filter chips */
 
-const ReportMap = ({ run, filters }) => {
+const ReportMap = ({ run, mode = "report", position = null, filters = { rat: [], errOnly: false, color: "rsrp" } }) => {
   const mapRef = uR(null);
   const mapInst = uR(null);
   const layersRef = uR({});
@@ -47,42 +47,48 @@ const ReportMap = ({ run, filters }) => {
 
   pE(() => {
     if (!mapInst.current) return;
+    // In live mode render the route once and let the position effect handle the marker
+    if (mode === "live" && layersRef.current.pl) return;
     const m = mapInst.current;
-    Object.values(layersRef.current).forEach(l => m.removeLayer(l));
-    layersRef.current = {};
+    Object.values(layersRef.current).forEach(l => {
+      if (l !== layersRef.current.liveMarker) m.removeLayer(l);
+    });
+    layersRef.current = { liveMarker: layersRef.current.liveMarker };
 
     const pl = L.polyline(samples.map(s => [s.lat, s.lng]), {
       color: "#94A3B8", weight: 3, opacity: 0.45
     }).addTo(m);
     layersRef.current.pl = pl;
 
-    const colorBy = filters.color;
-    filtered.forEach((s, idx) => {
-      let color = "#94A3B8";
-      if (colorBy === "rsrp") {
-        if (s.rsrp >= -80) color = "#22C55E";
-        else if (s.rsrp >= -90) color = "#F59E0B";
-        else color = "#EF4444";
-      } else if (colorBy === "rat") {
-        color = s.rat === "5G NR NSA" ? "#A78BFA" : "#ea4c89";
-      } else if (colorBy === "errors") {
-        color = s.err ? "#EF4444" : "#22C55E";
-      }
-      const dot = L.circleMarker([s.lat, s.lng], {
-        radius: s.err ? 6 : 4,
-        color: "#fff",
-        weight: 1.5,
-        fillColor: color,
-        fillOpacity: s.err ? 1 : 0.85,
-      }).addTo(m);
-      dot.bindTooltip(
-        `<b>iter sample ${s.i+1}</b><br>RSRP ${s.rsrp.toFixed(0)} dBm<br>` +
-        `RSRQ ${s.rsrq.toFixed(1)}<br>SINR ${s.sinr.toFixed(0)} dB<br>` +
-        `RAT ${s.rat}` + (s.err ? `<br><span style="color:#EF4444">${s.err}</span>`:""),
-        { className: "rep-tt" }
-      );
-      layersRef.current["d"+idx] = dot;
-    });
+    if (mode !== "live") {
+      const colorBy = filters.color;
+      filtered.forEach((s, idx) => {
+        let color = "#94A3B8";
+        if (colorBy === "rsrp") {
+          if (s.rsrp >= -80) color = "#22C55E";
+          else if (s.rsrp >= -90) color = "#F59E0B";
+          else color = "#EF4444";
+        } else if (colorBy === "rat") {
+          color = s.rat === "5G NR NSA" ? "#A78BFA" : "#ea4c89";
+        } else if (colorBy === "errors") {
+          color = s.err ? "#EF4444" : "#22C55E";
+        }
+        const dot = L.circleMarker([s.lat, s.lng], {
+          radius: s.err ? 6 : 4,
+          color: "#fff",
+          weight: 1.5,
+          fillColor: color,
+          fillOpacity: s.err ? 1 : 0.85,
+        }).addTo(m);
+        dot.bindTooltip(
+          `<b>iter sample ${s.i+1}</b><br>RSRP ${s.rsrp.toFixed(0)} dBm<br>` +
+          `RSRQ ${s.rsrq.toFixed(1)}<br>SINR ${s.sinr.toFixed(0)} dB<br>` +
+          `RAT ${s.rat}` + (s.err ? `<br><span style="color:#EF4444">${s.err}</span>`:""),
+          { className: "rep-tt" }
+        );
+        layersRef.current["d"+idx] = dot;
+      });
+    }
 
     const startIcon = L.divIcon({
       html: '<div class="map-pin"><span>S</span></div>',
@@ -96,7 +102,22 @@ const ReportMap = ({ run, filters }) => {
     layersRef.current.e = L.marker(run.route.end, { icon: endIcon }).addTo(m);
   }, [samples, filtered, filters.color]);
 
-  return <div ref={mapRef} className="rep-map" />;
+  pE(() => {
+    if (mode !== "live" || !mapInst.current || !position) return;
+    if (!layersRef.current.liveMarker) {
+      const icon = L.divIcon({
+        html: '<div class="live-marker-dot"><div class="live-marker-ring"></div></div>',
+        className: "",
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+      });
+      layersRef.current.liveMarker = L.marker(position, { icon, zIndexOffset: 1000 }).addTo(mapInst.current);
+    } else {
+      layersRef.current.liveMarker.setLatLng(position);
+    }
+  }, [position, mode]);
+
+  return <div ref={mapRef} className={`rep-map${mode === "live" ? " live" : ""}`} />;
 };
 
 const FilterPill = ({ label, value, options, multi=false, onChange, allowClear=true }) => {

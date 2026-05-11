@@ -113,13 +113,13 @@ const VOIP_NUMBERS = [
 ];
 
 const RUNS = [
-  { id: "r42", name: "VoIP_Run_42",      type: "VOIP_MO_MT", status: "PROGRESS",   iter: 3,  total: 10, dest: "DFIT", action: "MO_DIALING_MT", started: "14:32",  pass: null,    durSec: 188 },
-  { id: "r88", name: "SMS_Validate_88",  type: "MO_MT_SMS",  status: "FINALIZING", iter: 8,  total: 8,  dest: "LAB",  action: "Uploading…",     started: "14:18",  pass: "8/8",   durSec: 131 },
-  { id: "r51", name: "R2R_call_test_a",  type: "EXT_MO_MT",  status: "PROGRESS",   iter: 2,  total: 3,  dest: "EXTERNAL", action: "MT_RINGING", started: "14:39", pass: null,    durSec: 38 },
-  { id: "r40", name: "R2R_call_a",       type: "EXT_MO_MT",  status: "FAILED",     iter: 3,  total: 3,  dest: "EXTERNAL", action: "—",          started: "12:01", pass: "0/3",   durSec: 41 },
-  { id: "r41", name: "SMS_Bulk_03",      type: "MO_MT_SMS",  status: "COMPLETED",  iter: 8,  total: 8,  dest: "LAB",  action: "—",              started: "13:18",  pass: "8/8",   durSec: 131 },
-  { id: "r39", name: "VoIP_smoke",       type: "VOIP_MO_MT", status: "COMPLETED",  iter: 5,  total: 5,  dest: "LAB",  action: "—",              started: "11:48",  pass: "5/5",   durSec: 220 },
-  { id: "r38", name: "MO_SMS_quick",     type: "MO_SMS",     status: "COMPLETED",  iter: 3,  total: 3,  dest: "LAB",  action: "—",              started: "11:22",  pass: "3/3",   durSec: 11 },
+  { id: "r42", name: "VoIP_Run_42",      type: "VOIP_MO_MT", status: "PROGRESS",   iter: 3,  total: 10, dest: "DFIT",     action: "MO_DIALING_MT", started: "14:32", pass: null,  durSec: 188, route: { start: [32.7767, -96.7970], end: [32.8120, -96.8620] } },
+  { id: "r88", name: "SMS_Validate_88",  type: "MO_MT_SMS",  status: "FINALIZING", iter: 8,  total: 8,  dest: "LAB",      action: "Uploading…",    started: "14:18", pass: "8/8", durSec: 131, route: { start: [32.7900, -96.7800], end: [32.8050, -96.8250] } },
+  { id: "r51", name: "R2R_call_test_a",  type: "EXT_MO_MT",  status: "PROGRESS",   iter: 2,  total: 3,  dest: "EXTERNAL", action: "MT_RINGING",    started: "14:39", pass: null,  durSec: 38,  route: { start: [32.7600, -96.7650], end: [32.8200, -96.8500] } },
+  { id: "r40", name: "R2R_call_a",       type: "EXT_MO_MT",  status: "FAILED",     iter: 3,  total: 3,  dest: "EXTERNAL", action: "—",             started: "12:01", pass: "0/3", durSec: 41,  route: { start: [32.7600, -96.7650], end: [32.8200, -96.8500] } },
+  { id: "r41", name: "SMS_Bulk_03",      type: "MO_MT_SMS",  status: "COMPLETED",  iter: 8,  total: 8,  dest: "LAB",      action: "—",             started: "13:18", pass: "8/8", durSec: 131, route: { start: [32.7900, -96.7800], end: [32.8050, -96.8250] } },
+  { id: "r39", name: "VoIP_smoke",       type: "VOIP_MO_MT", status: "COMPLETED",  iter: 5,  total: 5,  dest: "LAB",      action: "—",             started: "11:48", pass: "5/5", durSec: 220, route: { start: [32.7767, -96.7970], end: [32.8120, -96.8620] } },
+  { id: "r38", name: "MO_SMS_quick",     type: "MO_SMS",     status: "COMPLETED",  iter: 3,  total: 3,  dest: "LAB",      action: "—",             started: "11:22", pass: "3/3", durSec: 11,  route: { start: [32.7900, -96.7800], end: [32.8050, -96.8250] } },
 ];
 
 const fmtDur = s => { const m = Math.floor(s/60), r = s%60; return m ? `${m}m ${r}s` : `${r}s`; };

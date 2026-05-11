@@ -85,7 +85,7 @@ const App = () => {
               onStart={() => { setRoute("runs/detail"); setRunId("r42"); }} />
           )}
           {route === "runs" && <History runs={runs} onOpenRun={goToRun} onConfigure={goToConfigure} />}
-          {route === "runs/detail" && <RunReport onBack={() => setRoute("runs")} />}
+          {route === "runs/detail" && <RunDetail runId={runId} runs={runs} onBack={() => setRoute("runs")} />}
           {route === "reports" && <History runs={runs.filter(r=>r.status==="COMPLETED"||r.status==="FAILED")} onOpenRun={goToRun} onConfigure={goToConfigure} />}
           {route === "devices" && <DevicesPage />}
           {route === "settings" && <Settings />}
