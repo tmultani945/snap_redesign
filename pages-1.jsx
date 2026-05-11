@@ -109,7 +109,6 @@ const Dashboard = ({ runs, onOpenRun, onConfigure, onNav, onUseRoute, theme }) =
         <div className="tour-head">
           <div>
             <div className="page-eyebrow">How it works</div>
-            <h2 className="tour-title">From "I need to test this" to "here's the proof" in four steps.</h2>
           </div>
         </div>
         <div className="tour-steps">
