@@ -1270,6 +1270,296 @@ textarea.input { resize: vertical; }
 .cta-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ============================================================
+   CONFIGURE — REDESIGNED
+   ============================================================ */
+
+/* Type selector tabs */
+.cfg-type-tabs {
+  display: flex; gap: 6px;
+  padding: 14px 32px 0;
+  max-width: 1480px; margin: 0 auto;
+  flex-wrap: wrap;
+}
+.cfg-type-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px;
+  background: var(--bg-surface); border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  color: var(--fg-secondary); font-size: var(--t-md); font-weight: 600;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.cfg-type-tab:hover { border-color: var(--border-strong); color: var(--fg-primary); }
+.cfg-type-tab.active {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff; box-shadow: var(--shadow-pink);
+}
+.cfg-type-tab-ic { opacity: .8; display: flex; }
+.cfg-type-tab.active .cfg-type-tab-ic { opacity: 1; }
+.cfg-type-tab-code {
+  font-family: var(--font-mono); font-size: 10.5px;
+  padding: 1px 6px; border-radius: var(--r-pill);
+  background: rgba(255,255,255,.18); color: #fff;
+}
+
+/* Device stage with phone bezels */
+.cfg-dev-toolbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 22px; border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-2); flex-wrap: wrap;
+}
+.cfg-dev-toolbar-label {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--fg-tertiary); font-weight: 600;
+}
+.cfg-bulk-input {
+  width: 64px; padding: 6px 10px;
+  background: var(--bg-input); border: 1.5px solid var(--border-input);
+  border-radius: var(--r-pill); font-family: var(--font-mono);
+  font-size: var(--t-md); font-weight: 600; text-align: center;
+  outline: none; transition: border-color .15s, box-shadow .15s; color: var(--fg-primary);
+}
+.cfg-bulk-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cfg-divider-v { width: 1px; height: 20px; background: var(--border); }
+.cfg-avail-row { display: flex; align-items: center; gap: 8px; }
+.cfg-avail-label { font-size: var(--t-sm); color: var(--fg-secondary); font-weight: 500; }
+.cfg-avail-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--accent-soft); font-family: var(--font-mono);
+  font-size: var(--t-xs); font-weight: 600; color: var(--accent);
+}
+.cfg-avail-key { color: var(--fg-tertiary); font-weight: 500; margin-right: 2px; }
+
+.cfg-dev-stage {
+  position: relative; display: grid; gap: 32px;
+  padding: 28px 24px 32px;
+  background: radial-gradient(700px 280px at 50% -10%,
+    color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), var(--bg-surface);
+  border-bottom: 1px dashed var(--border); justify-content: center;
+}
+.cfg-dev-stage.cols-1 { grid-template-columns: 280px; }
+.cfg-dev-stage.cols-2 { grid-template-columns: 1fr 1fr; max-width: 680px; margin: 0 auto; }
+
+.cfg-dev-slot-card {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 12px 8px; border-radius: var(--r-lg); transition: background .18s;
+}
+.cfg-dev-slot-card.is-empty:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.cfg-dev-slot-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 12px; border-radius: var(--r-pill);
+  background: var(--bg-surface-2); border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: var(--t-xs); letter-spacing: .06em;
+  font-weight: 600; color: var(--fg-secondary);
+}
+.cfg-role-dot { width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--accent); }
+
+/* Phone bezel */
+.cfg-phone {
+  position: relative; width: 196px; height: 400px; border-radius: 38px;
+  background: linear-gradient(160deg, #1c1c22 0%, #0a0a10 100%);
+  padding: 9px;
+  box-shadow: 0 30px 60px -20px rgba(13,12,34,.35),
+              0 14px 28px -16px rgba(13,12,34,.30),
+              inset 0 0 0 1.5px rgba(255,255,255,.06);
+}
+.cfg-phone-screen {
+  width: 100%; height: 100%; border-radius: 30px;
+  background: linear-gradient(180deg, #fafafd 0%, #efeff4 100%);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+.cfg-phone-notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 96px; height: 22px; background: #0a0a10;
+  border-radius: 0 0 18px 18px; z-index: 2;
+}
+.cfg-phone-screen::before {
+  content: ""; position: absolute; inset: 36px 24px 80px;
+  background-image: repeating-linear-gradient(135deg,
+    rgba(13,12,34,.04) 0px, rgba(13,12,34,.04) 6px, transparent 6px, transparent 14px);
+  border-radius: 12px; opacity: .7;
+}
+.cfg-phone-label {
+  position: absolute; top: 50px; left: 24px; right: 24px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--fg-quaternary);
+  text-align: center; letter-spacing: .06em; text-transform: uppercase; z-index: 1;
+}
+[data-theme="dark"] .cfg-phone-screen { background: linear-gradient(180deg, #1e2530 0%, #1a2030 100%); }
+
+/* Pick CTA button inside phone */
+.cfg-dev-pick-cta {
+  position: relative; z-index: 3;
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 18px; background: var(--bg-surface);
+  border: 1.5px solid var(--border); border-radius: var(--r-pill);
+  color: var(--fg-primary); font-size: var(--t-md); font-weight: 600;
+  cursor: pointer; box-shadow: var(--shadow-md); transition: all .18s;
+}
+.cfg-dev-pick-cta:hover {
+  border-color: var(--accent); color: var(--accent);
+  transform: translateY(-1px); box-shadow: 0 8px 24px rgba(234,76,137,.22);
+}
+.cfg-dev-pick-cta svg { color: var(--accent); }
+
+/* Filled device card */
+.cfg-dev-filled {
+  position: relative; z-index: 3;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 14px; min-width: 160px; background: var(--bg-surface);
+  border: 1.5px solid var(--accent); border-radius: var(--r-md);
+  box-shadow: 0 6px 18px rgba(234,76,137,.20); cursor: pointer;
+}
+.cfg-dev-filled-row { display: flex; align-items: center; gap: 8px; }
+.cfg-dev-state {
+  width: 8px; height: 8px; border-radius: var(--r-pill); flex-shrink: 0;
+  background: var(--status-idle);
+}
+.cfg-dev-online { background: var(--status-pass); box-shadow: 0 0 0 2px color-mix(in srgb, var(--status-pass) 30%, transparent); }
+.cfg-dev-busy   { background: var(--status-cancel); }
+.cfg-dev-offline{ background: var(--status-fail); }
+.cfg-dev-filled-name { font-size: var(--t-md); font-weight: 600; }
+.cfg-dev-filled-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-tertiary); }
+.cfg-dev-filled-os {
+  margin-left: auto; font-family: var(--font-mono); font-size: 9.5px;
+  color: var(--fg-tertiary); background: var(--bg-surface-2);
+  padding: 2px 6px; border-radius: var(--r-pill);
+}
+.cfg-dev-slot-card.is-filled .cfg-phone-screen {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 6%, #fafafd) 0%,
+    color-mix(in srgb, var(--accent) 3%, #efeff4) 100%);
+}
+.cfg-dev-slot-card.is-filled .cfg-phone {
+  box-shadow: 0 30px 60px -20px rgba(234,76,137,.25),
+              0 14px 28px -16px rgba(234,76,137,.20),
+              inset 0 0 0 1.5px rgba(255,255,255,.06);
+}
+
+/* Step table role tags */
+.cfg-role-tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 10px; border-radius: var(--r-pill);
+  font-family: var(--font-mono); font-size: var(--t-xs); font-weight: 600;
+  background: var(--bg-surface-2); border: 1px solid var(--border); color: var(--fg-secondary);
+}
+.cfg-role-tag.mo     { background: color-mix(in srgb, var(--status-progress) 12%, transparent); color: var(--status-progress); border-color: color-mix(in srgb, var(--status-progress) 28%, transparent); }
+.cfg-role-tag.mt     { background: color-mix(in srgb, #A78BFA 14%, transparent); color: #7c5cf3; border-color: color-mix(in srgb, #A78BFA 28%, transparent); }
+.cfg-role-tag.verify { background: color-mix(in srgb, var(--status-cancel) 14%, transparent); color: var(--status-cancel); border-color: color-mix(in srgb, var(--status-cancel) 28%, transparent); }
+.cfg-col-step { font-family: var(--font-mono); font-weight: 700; color: var(--accent); width: 60px; }
+.cfg-col-time { font-family: var(--font-mono); color: var(--fg-secondary); width: 130px; }
+
+/* Checkbox row */
+.cfg-checkbox-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--bg-surface-2);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  cursor: pointer; font-size: var(--t-md); font-weight: 500;
+}
+.cfg-checkbox-row input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* Artifact list layout (single device) */
+.cfg-art-list { display: flex; flex-direction: column; gap: 8px; }
+.art-chip-label { font-family: var(--font-mono); font-size: var(--t-sm); font-weight: 600; flex: 1; }
+.art-chip-desc  { font-size: var(--t-xs); color: var(--fg-tertiary); font-family: var(--font-mono); margin-left: auto; }
+.art-chip { width: 100%; text-align: left; }
+
+/* Artifact matrix (multi device) */
+.cfg-art-matrix { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--t-md); }
+.cfg-art-matrix th, .cfg-art-matrix td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: center; }
+.cfg-art-matrix thead th {
+  font-size: var(--t-xs); font-weight: 600; color: var(--fg-tertiary);
+  text-transform: uppercase; letter-spacing: .08em;
+  font-family: var(--font-mono); background: var(--bg-surface-2);
+}
+.cfg-art-matrix thead th:first-child { text-align: left; }
+.cfg-art-matrix tbody th { text-align: left; font-family: var(--font-mono); font-weight: 600; color: var(--fg-secondary); }
+.cfg-art-matrix tbody tr:hover td { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.cfg-matrix-check {
+  width: 20px; height: 20px; border: 1.5px solid var(--border-strong);
+  border-radius: 5px; display: inline-grid; place-items: center;
+  background: var(--bg-surface); cursor: pointer; transition: all .14s;
+}
+.cfg-matrix-check.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cfg-matrix-check:not(.on) svg { visibility: hidden; }
+
+/* Info banner variant */
+.cfg-banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 16px; border-radius: var(--r-md);
+  font-size: var(--t-sm);
+  background: var(--accent-soft); border: 1px solid var(--accent-strong);
+  color: var(--fg-secondary);
+}
+.cfg-banner svg { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.cfg-banner b   { display: block; margin-bottom: 2px; color: var(--accent); }
+
+/* Device picker modal */
+.cfg-modal-shade {
+  position: fixed; inset: 0; background: rgba(13,12,34,.45);
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.cfg-modal {
+  width: 480px; max-width: calc(100vw - 32px);
+  background: var(--bg-surface); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); overflow: hidden; border: 1px solid var(--border);
+}
+.cfg-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+}
+.cfg-modal-head h3 { margin: 0; font-size: var(--t-lg); font-weight: 700; }
+.cfg-modal-close {
+  width: 30px; height: 30px; border-radius: var(--r-pill);
+  background: transparent; border: 0;
+  display: grid; place-items: center;
+  color: var(--fg-tertiary); cursor: pointer;
+}
+.cfg-modal-close:hover { background: var(--bg-hover); color: var(--fg-primary); }
+.cfg-dev-option {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  padding: 14px 22px; background: transparent; border: 0;
+  border-bottom: 1px solid var(--border); cursor: pointer; text-align: left;
+  transition: background .12s;
+}
+.cfg-dev-option:hover { background: var(--bg-hover); }
+.cfg-dev-option:last-child { border-bottom: 0; }
+.cfg-dev-option-main { flex: 1; }
+.cfg-dev-option-name { font-size: var(--t-md); font-weight: 600; }
+.cfg-dev-option-meta { font-family: var(--font-mono); font-size: var(--t-xs); color: var(--fg-tertiary); margin-top: 3px; }
+.cfg-dev-option-os {
+  font-family: var(--font-mono); font-size: 10.5px;
+  background: var(--bg-surface-2); padding: 3px 8px;
+  border-radius: var(--r-pill); color: var(--fg-tertiary); font-weight: 500;
+}
+
+/* Summary panel: new row structure */
+.summary-row { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--t-md); }
+.summary-row .lbl { color: var(--fg-tertiary); }
+.summary-row .val { font-weight: 700; }
+.cfg-summary { position: sticky; top: 88px; }
+
+/* Configure action timeline (vertical in summary) */
+.cfg-action-tl  { display: flex; flex-direction: column; gap: 8px; }
+.cfg-tl-node {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; background: var(--bg-surface-2);
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  font-size: var(--t-sm);
+}
+.cfg-tl-dot {
+  width: 16px; height: 16px; border-radius: var(--r-pill);
+  background: var(--bg-surface); border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+}
+.cfg-tl-edge { width: 1px; height: 8px; background: var(--border); margin-left: 19px; display: block; }
+
+/* Tag accent variant */
+.tag-accent { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-strong); }
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
