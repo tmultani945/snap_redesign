@@ -21,6 +21,7 @@ const App = () => {
   const [runId, setRunId] = useState(null);
   const [cfgType, setCfgType] = useState(null);
   const [runs, setRuns] = useState(window.RUNS);
+  const [driveToast, setDriveToast] = useState(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = tw.theme;
@@ -41,6 +42,12 @@ const App = () => {
     }, 6000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (!driveToast) return;
+    const t = setTimeout(() => setDriveToast(null), 3200);
+    return () => clearTimeout(t);
+  }, [driveToast]);
 
   const goToRun = (id) => { setRunId(id); setRoute("runs/detail"); };
   const goToConfigure = (type) => { setCfgType(type); setRoute("catalog/configure"); };
@@ -66,11 +73,11 @@ const App = () => {
       <Sidebar route={baseRoute} setRoute={setRoute} runCount={liveCount} />
       <main className="main">
         <TopBar crumbs={crumbs} theme={tw.theme} setTheme={(v)=>setTw("theme", v)} />
-        {baseRoute !== "runs" && baseRoute !== "catalog" && (
+        {baseRoute !== "runs" && baseRoute !== "catalog" && baseRoute !== "dashboard" && (
           <ActiveRunsStrip runs={runs} onView={goToRun} />
         )}
         <div className="main-scroll">
-          {route === "dashboard" && <Dashboard runs={runs} onOpenRun={goToRun} onConfigure={goToConfigure} onNav={setRoute} />}
+          {route === "dashboard" && <Dashboard runs={runs} onOpenRun={goToRun} onConfigure={goToConfigure} onNav={setRoute} onUseRoute={(id) => setDriveToast(id)} theme={tw.theme} />}
           {route === "catalog" && <Catalog onConfigure={goToConfigure} />}
           {route === "catalog/configure" && (
             <Configure testType={cfgType}
@@ -78,12 +85,22 @@ const App = () => {
               onStart={() => { setRoute("runs/detail"); setRunId("r42"); }} />
           )}
           {route === "runs" && <History runs={runs} onOpenRun={goToRun} onConfigure={goToConfigure} />}
-          {route === "runs/detail" && <RunDetail runId={runId} runs={runs} onBack={() => setRoute("runs")} />}
+          {route === "runs/detail" && <RunReport onBack={() => setRoute("runs")} />}
           {route === "reports" && <History runs={runs.filter(r=>r.status==="COMPLETED"||r.status==="FAILED")} onOpenRun={goToRun} onConfigure={goToConfigure} />}
           {route === "devices" && <DevicesPage />}
           {route === "settings" && <Settings />}
         </div>
       </main>
+
+      {driveToast && (
+        <div className="rt-toast" role="status">
+          <Icon name="check" size={16} style={{ color: "var(--accent)" }} />
+          <div>
+            <b>Route selected.</b>{" "}
+            <span className="mono">{driveToast}</span>
+          </div>
+        </div>
+      )}
 
       <TweaksPanel title="Tweaks">
         <TweakSection title="Theme">

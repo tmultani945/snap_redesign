@@ -3,10 +3,9 @@ const http      = require('http');
 const fs        = require('fs');
 const path      = require('path');
 
-const PORT = 3030;
+const PORT = 3031;
 const OUT  = path.join(__dirname, 'screenshots');
 
-// ── static file server ────────────────────────────────────────────────────────
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css':  'text/css',
@@ -15,8 +14,6 @@ const MIME = {
   '.jpg':  'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png':  'image/png',
-  '.md':   'text/markdown',
-  '.json': 'application/json',
 };
 
 function createServer() {
@@ -33,11 +30,10 @@ function createServer() {
   });
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function snap(page, name) {
-  await sleep(800);
+  await sleep(600);
   if (!fs.existsSync(OUT)) fs.mkdirSync(OUT, { recursive: true });
   const file = path.join(OUT, `${name}.png`);
   await page.screenshot({ path: file, fullPage: true });
@@ -50,19 +46,18 @@ async function clickNav(page, label) {
       if (el.textContent.trim().startsWith(label)) { el.click(); return; }
     }
   }, label);
-  await sleep(500);
+  await sleep(600);
 }
 
 async function clickRunTab(page, label) {
   await page.evaluate(label => {
-    for (const el of document.querySelectorAll('.run-tab')) {
-      if (el.textContent.trim() === label) { el.click(); return; }
+    for (const el of document.querySelectorAll('.rep-tab')) {
+      if (el.textContent.trim().startsWith(label)) { el.click(); return; }
     }
   }, label);
   await sleep(500);
 }
 
-// ── main ──────────────────────────────────────────────────────────────────────
 async function main() {
   const server = createServer();
   await new Promise(r => server.listen(PORT, r));
@@ -76,65 +71,103 @@ async function main() {
   await page.setViewport({ width: 1440, height: 900 });
 
   try {
-    // Initial load — wait for Babel to fetch + transpile all JSX files
     await page.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0', timeout: 30000 });
     await sleep(2000);
 
     console.log('\nCapturing screenshots…\n');
 
-    // 01 — Dashboard
-    await snap(page, '01-dashboard');
+    // 01 — Dashboard top
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await snap(page, '01-dashboard-top');
 
-    // 02 — Test Cases / Catalog
+    // 02 — Dashboard — How it works section
+    await page.evaluate(() => {
+      document.querySelector('.tour')?.scrollIntoView({ behavior: 'instant' });
+    });
+    await snap(page, '02-dashboard-how-it-works');
+
+    // 03 — Dashboard — Drive Testing section (scroll + wait for routes to load)
+    await page.evaluate(() => window.scrollTo(0, 99999));
+    await sleep(2800); // mock API 600ms delay + Leaflet tile fetch
+    await snap(page, '03-dashboard-drive-testing');
+
+    // 04 — Drive section — select second route (LBJ Freeway / Highway)
+    await page.evaluate(() => {
+      const cards = document.querySelectorAll('.rt-card');
+      if (cards[1]) cards[1].click();
+    });
+    await sleep(1200);
+    await snap(page, '04-dashboard-drive-route2-selected');
+
+    // 05 — Drive section — select third route (Plano / Suburban)
+    await page.evaluate(() => {
+      const cards = document.querySelectorAll('.rt-card');
+      if (cards[2]) cards[2].click();
+    });
+    await sleep(1200);
+    await snap(page, '05-dashboard-drive-route3-selected');
+
+    // 06 — Drive section — "Use this route" toast
+    await page.evaluate(() => {
+      const btn = document.querySelector('.rt-detail-foot .btn-primary');
+      if (btn) btn.click();
+    });
+    await sleep(700);
+    await snap(page, '06-dashboard-drive-toast');
+
+    // 07 — Test Cases / Catalog
     await clickNav(page, 'Test Cases');
-    await snap(page, '02-test-cases');
+    await snap(page, '07-test-cases');
 
-    // 03 — Configure (click first Configure button on catalog page)
+    // 08 — Configure (click first Configure button)
     await page.evaluate(() => {
       const btn = [...document.querySelectorAll('button')]
-        .find(b => b.textContent.includes('Configure'));
+        .find(b => b.textContent.trim() === 'Configure');
       if (btn) btn.click();
     });
     await sleep(600);
-    await snap(page, '03-configure');
+    await snap(page, '08-configure');
 
-    // 04 — Test Runs / History
+    // 09 — Test Runs / History
     await clickNav(page, 'Test Runs');
-    await snap(page, '04-test-runs');
+    await snap(page, '09-test-runs');
 
-    // 05 — Run Detail: Live tab (click a PROGRESS run row)
+    // 10 — Run Report (click first row in table)
     await page.evaluate(() => {
       const row = document.querySelector('table tbody tr');
       if (row) row.click();
     });
-    await sleep(600);
-    await snap(page, '05-run-detail-live');
+    await sleep(1800); // wait for Leaflet map + report to render
+    await snap(page, '10-run-report-summary');
 
-    // 06 — Run Detail: Summary tab
-    await clickRunTab(page, 'Summary');
-    await snap(page, '06-run-detail-summary');
-
-    // 07 — Run Detail: Session tab
+    // 11 — Run Report: Session tab
     await clickRunTab(page, 'Session');
-    await snap(page, '07-run-detail-session');
+    await sleep(400);
+    await snap(page, '11-run-report-session');
 
-    // 08 — Run Detail: Artifact tab
-    await clickRunTab(page, 'Artifact');
-    await snap(page, '08-run-detail-artifact');
+    // 12 — Run Report: KPI Analysis tab
+    await clickRunTab(page, 'KPI Analysis');
+    await sleep(400);
+    await snap(page, '12-run-report-kpi-analysis');
 
-    // 09 — Reports
+    // 13 — Run Report: Artifacts tab
+    await clickRunTab(page, 'Artifacts');
+    await sleep(400);
+    await snap(page, '13-run-report-artifacts');
+
+    // 14 — Reports
     await clickNav(page, 'Reports');
-    await snap(page, '09-reports');
+    await snap(page, '14-reports');
 
-    // 10 — Devices
+    // 15 — Devices
     await clickNav(page, 'Devices');
-    await snap(page, '10-devices');
+    await snap(page, '15-devices');
 
-    // 11 — Settings
+    // 16 — Settings
     await clickNav(page, 'Settings');
-    await snap(page, '11-settings');
+    await snap(page, '16-settings');
 
-    console.log(`\n✅  11 screenshots saved to ./screenshots/\n`);
+    console.log(`\n✅  16 screenshots saved to ./screenshots/\n`);
   } finally {
     await browser.close();
     server.close();

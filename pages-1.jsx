@@ -4,7 +4,7 @@ const { useState: pS, useEffect: pE, useMemo: pM } = React;
 /* ============================================================
    DASHBOARD
    ============================================================ */
-const Dashboard = ({ runs, onOpenRun, onConfigure, onNav }) => {
+const Dashboard = ({ runs, onOpenRun, onConfigure, onNav, onUseRoute, theme }) => {
   const live = runs.filter((r) => r.status === "PROGRESS" || r.status === "FINALIZING");
   const [step, setStep] = pS(0);
   const tourSteps = [
@@ -124,56 +124,16 @@ const Dashboard = ({ runs, onOpenRun, onConfigure, onNav }) => {
         </div>
       </section>
 
-      {/* Use cases */}
-      <section className="usecases">
-        <div className="page-eyebrow">Use cases</div>
-        <h2 className="uc-title">Five things our customers run every day.</h2>
-        <div className="uc-grid">
-          {[
-          { type: "VOIP_MO_MT", uc: "Measure VoIP quality on live cellular", who: "VoIP / IMS engineers" },
-          { type: "MO_MT_SMS", uc: "Verify SMS delivery and message accuracy", who: "Messaging QA" },
-          { type: "EXT_MO_MT", uc: "Validate remote-to-remote voice calls", who: "Carrier interop teams" },
-          { type: "MO_SMS", uc: "Send SMS when only the sender is in lab", who: "Field operators" },
-          { type: "VIDEO", uc: "Capture video, logs, KPIs as evidence", who: "Test managers" }].
-          map(({ type, uc, who }) => {
-            const t = TEST_TYPES[type];
-            return (
-              <button key={type} className="uc-card" onClick={() => onConfigure(type)}>
-                <div className="uc-icon"><Icon name={t.icon} size={20} /></div>
-                <div className="uc-body">
-                  <div className="uc-name">{t.label}</div>
-                  <div className="uc-uc">{uc}</div>
-                  <div className="uc-who">For {who}</div>
-                </div>
-                <div className="uc-cta">Try it <Icon name="arrow" size={14} /></div>
-              </button>);
-
-          })}
-        </div>
+      {/* Drive Testing — Suggested Routes */}
+      <section className="dash-routes">
+        <div className="page-eyebrow">Drive Testing</div>
+        <h2 className="tour-title">Suggested drive-test routes.</h2>
+        <p className="hero-lede" style={{ maxWidth: "64ch", marginBottom: "24px" }}>
+          Pick a predefined route to seed your next drive-test plan. Each route carries target
+          KPIs, estimated duration, and the polyline your fleet will follow.
+        </p>
+        <SuggestedRoutesLanding standalone={false} onUseRoute={onUseRoute} theme={theme} />
       </section>
-
-      {/* Live snapshot — only when something is running */}
-      {live.length > 0 &&
-      <section className="live-snap">
-          <div className="page-eyebrow">Right now in your labs</div>
-          <h2 className="ls-title">{live.length} test{live.length > 1 ? "s" : ""} running.</h2>
-          <div className="active-list">
-            {live.map((r) =>
-          <button key={r.id} className="active-row" onClick={() => onOpenRun(r.id)}>
-                <StatusChip status={r.status} size="sm" />
-                <div className="ar-main">
-                  <div className="ar-title">{r.name} <Tag mono>{r.type}</Tag></div>
-                  <div className="ar-sub">iter {r.iter}/{r.total} · {r.action} · started {r.started}</div>
-                </div>
-                <div className="ar-progress">
-                  <IterDots done={r.iter - 1} total={r.total} />
-                </div>
-                <Icon name="chevron" size={14} className="ar-chev" />
-              </button>
-          )}
-          </div>
-        </section>
-      }
 
       {/* Final CTA strip */}
       <section className="cta-strip">
