@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>Remote Tests — Configure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#ea4c89; --accent-hover:#d63d78;
+  --accent-soft:rgba(234,76,137,.10); --accent-strong:rgba(234,76,137,.25);
+  --font-sans:"Plus Jakarta Sans",-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --status-idle:#94A3B8; --status-progress:#3B82F6;
+  --status-pass:#22C55E; --status-fail:#EF4444; --status-cancel:#F59E0B;
+  --t-xs:11px; --t-sm:12px; --t-md:13px; --t-base:14px;
+  --t-lg:16px; --t-xl:20px; --t-2xl:28px;
+  --r-sm:6px; --r-md:10px; --r-lg:16px; --r-pill:999px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,.06);
+  --shadow-sm:0 1px 6px rgba(0,0,0,.07),0 3px 12px rgba(0,0,0,.05);
+  --shadow-md:0 4px 16px rgba(0,0,0,.09),0 1px 4px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.07);
+  --shadow-pink:0 6px 20px rgba(234,76,137,.32);
+  --bg-app:#f5f5f7; --bg-elev:#ffffff; --bg-surface:#ffffff;
+  --bg-surface-2:#f5f5f7; --bg-hover:#f0f0f5; --bg-input:#ffffff;
+  --fg-primary:#0d0c22; --fg-secondary:#44435a; --fg-tertiary:#6e6d7a; --fg-quaternary:#9e9ea7;
+  --border:#e8e8ed; --border-strong:#d0d0da; --border-input:#dcdce4;
+}
+[data-theme="dark"]{
+  --bg-app:#0B0F14; --bg-elev:#10161E; --bg-surface:#141B25;
+  --bg-surface-2:#1A2330; --bg-hover:#1E2A38; --bg-input:#0E141C;
+  --fg-primary:#E6EDF6; --fg-secondary:#B7C2D0; --fg-tertiary:#7A8699; --fg-quaternary:#4F5B6B;
+  --border:#1F2A38; --border-strong:#2C3A4D; --border-input:#243140;
+  --accent-soft:rgba(234,76,137,.16); --accent-strong:rgba(234,76,137,.32);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--font-sans);font-size:var(--t-base);color:var(--fg-primary);background:var(--bg-app);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.mono{font-family:var(--font-mono);font-size:.92em;letter-spacing:-.01em}
+button,input,textarea,select{font:inherit;color:inherit}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:30;box-shadow:var(--shadow-xs)}
+[data-theme="dark"] .topbar{background:rgba(16,22,30,.88)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:var(--t-md)}
+.crumb{color:var(--fg-tertiary);cursor:pointer;transition:color .15s}
+.crumb:hover{color:var(--fg-primary)}
+.crumb-sep{color:var(--fg-quaternary)}
+.crumb-last{color:var(--fg-primary);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.search-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--r-pill);background:var(--bg-surface-2);border:1.5px solid var(--border);color:var(--fg-tertiary);font-size:var(--t-md);cursor:pointer;min-width:280px}
+.search-pill kbd{margin-left:auto;font-family:var(--font-mono);font-size:10px;padding:1px 6px;border-radius:4px;border:1px solid var(--border);color:var(--fg-tertiary)}
+.icon-btn{position:relative;width:34px;height:34px;background:transparent;border:1.5px solid var(--border);border-radius:var(--r-pill);display:grid;place-items:center;color:var(--fg-secondary);cursor:pointer;transition:all .15s}
+.icon-btn:hover{background:var(--bg-hover);color:var(--fg-primary);border-color:var(--border-strong)}
+.ping{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:var(--r-pill);background:var(--status-fail);box-shadow:0 0 0 2px var(--bg-elev)}
+
+/* TEST TYPE TABS */
+.type-tabs{display:flex;gap:6px;padding:14px 32px 0;max-width:1480px;margin:0 auto}
+.type-tab{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-pill);color:var(--fg-secondary);font-size:var(--t-md);font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.type-tab:hover{border-color:var(--border-strong);color:var(--fg-primary)}
+.type-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--shadow-pink)}
+.type-tab .ic{opacity:.8}
+.type-tab.active .ic{opacity:1}
+.type-tab .type-tab-code{font-family:var(--font-mono);font-size:10.5px;padding:1px 6px;border-radius:var(--r-pill);background:rgba(255,255,255,.18);color:#fff;display:none}
+.type-tab.active .type-tab-code{display:inline-block}
+
+/* PAGE */
+.page{padding:20px 32px 40px;max-width:1480px;margin:0 auto}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.page-eyebrow{font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.10em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.page-head h1{font-size:var(--t-2xl);margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.page-sub{color:var(--fg-tertiary);font-size:var(--t-md);margin-top:8px}
+.page-sub .mono{color:var(--fg-secondary)}
+
+.cfg-grid{display:grid;grid-template-columns:200px 1fr 320px;gap:24px;align-items:start}
+.cfg-rail{display:flex;flex-direction:column;gap:4px;position:sticky;top:88px}
+.cfg-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--r-md);background:transparent;border:0;font-size:var(--t-md);color:var(--fg-secondary);text-align:left;cursor:pointer;transition:background .14s;width:100%}
+.cfg-step:hover{background:var(--bg-hover)}
+.cfg-step.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.cfg-step-num{width:24px;height:24px;border-radius:var(--r-pill);background:var(--bg-surface-2);border:1px solid var(--border);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:700;flex-shrink:0}
+.cfg-step.active .cfg-step-num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cfg-step.done .cfg-step-num{background:var(--status-pass);color:#fff;border-color:var(--status-pass)}
+
+/* CARDS */
+.card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.card+.card{margin-top:16px}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border)}
+.card-head h3{margin:0;font-size:var(--t-lg);font-weight:700;letter-spacing:-.01em}
+.card-body{padding:22px}
+
+/* DEVICE STAGE */
+.dev-stage{position:relative;display:grid;gap:32px;padding:28px 24px 32px;background:radial-gradient(700px 280px at 50% -10%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 70%),var(--bg-surface);border-bottom:1px dashed var(--border);justify-content:center}
+.dev-stage.cols-1{grid-template-columns:280px}
+.dev-stage.cols-2{grid-template-columns:1fr 1fr;max-width:680px;margin:0 auto}
+.dev-slot-card{display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 8px;border-radius:var(--r-lg);transition:background .18s}
+.dev-slot-card.is-empty:hover{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.dev-slot-tag{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:var(--r-pill);background:var(--bg-surface-2);border:1px solid var(--border);font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.06em;font-weight:600;color:var(--fg-secondary)}
+.dev-slot-tag .role-dot{width:6px;height:6px;border-radius:var(--r-pill);background:var(--accent)}
+
+.phone{position:relative;width:196px;height:400px;border-radius:38px;background:linear-gradient(160deg,#1c1c22 0%,#0a0a10 100%);padding:9px;box-shadow:0 30px 60px -20px rgba(13,12,34,.35),0 14px 28px -16px rgba(13,12,34,.30),inset 0 0 0 1.5px rgba(255,255,255,.06)}
+.phone-screen{width:100%;height:100%;border-radius:30px;background:linear-gradient(180deg,#fafafd 0%,#efeff4 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:96px;height:22px;background:#0a0a10;border-radius:0 0 18px 18px;z-index:2}
+.phone-screen::before{content:"";position:absolute;inset:36px 24px 80px;background-image:repeating-linear-gradient(135deg,rgba(13,12,34,.04) 0px,rgba(13,12,34,.04) 6px,transparent 6px,transparent 14px);border-radius:12px;opacity:.7}
+.phone-placeholder-label{position:absolute;top:50px;left:24px;right:24px;font-family:var(--font-mono);font-size:10px;color:var(--fg-quaternary);text-align:center;letter-spacing:.06em;text-transform:uppercase;z-index:1}
+
+.dev-pick-cta{position:relative;z-index:3;display:flex;align-items:center;gap:8px;padding:11px 18px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-pill);color:var(--fg-primary);font-size:var(--t-md);font-weight:600;cursor:pointer;box-shadow:var(--shadow-md);transition:all .18s}
+.dev-pick-cta:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);box-shadow:0 8px 24px rgba(234,76,137,.22)}
+.dev-pick-cta .ic{color:var(--accent)}
+.dev-filled{position:relative;z-index:3;display:flex;flex-direction:column;gap:4px;padding:10px 14px;min-width:180px;background:var(--bg-surface);border:1.5px solid var(--accent);border-radius:var(--r-md);box-shadow:0 6px 18px rgba(234,76,137,.20);cursor:pointer}
+.dev-filled-row{display:flex;align-items:center;gap:8px}
+.dev-state{width:8px;height:8px;border-radius:var(--r-pill);flex-shrink:0;background:var(--status-idle)}
+.dev-online{background:var(--status-pass);box-shadow:0 0 0 2px color-mix(in srgb,var(--status-pass) 30%,transparent)}
+.dev-busy{background:var(--status-cancel)}
+.dev-offline{background:var(--status-fail)}
+.dev-filled-name{font-size:var(--t-md);font-weight:600}
+.dev-filled-meta{font-family:var(--font-mono);font-size:10.5px;color:var(--fg-tertiary)}
+.dev-filled-os{margin-left:auto;font-family:var(--font-mono);font-size:9.5px;color:var(--fg-tertiary);background:var(--bg-surface-2);padding:2px 6px;border-radius:var(--r-pill)}
+.dev-slot-card.is-filled .phone-screen{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 6%,#fafafd) 0%,color-mix(in srgb,var(--accent) 3%,#efeff4) 100%)}
+.dev-slot-card.is-filled .phone-screen::before{opacity:.4}
+.dev-slot-card.is-filled .phone{box-shadow:0 30px 60px -20px rgba(234,76,137,.25),0 14px 28px -16px rgba(234,76,137,.20),inset 0 0 0 1.5px rgba(255,255,255,.06)}
+
+.dev-toolbar{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--border);background:var(--bg-surface-2);flex-wrap:wrap}
+.dev-toolbar-label{font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--fg-tertiary);font-weight:600}
+.bulk-input{width:64px;padding:6px 10px;background:var(--bg-input);border:1.5px solid var(--border-input);border-radius:var(--r-pill);font-family:var(--font-mono);font-size:var(--t-md);font-weight:600;text-align:center;outline:none;transition:border-color .15s,box-shadow .15s}
+.bulk-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.divider-v{width:1px;height:20px;background:var(--border)}
+.avail-row{display:flex;align-items:center;gap:8px}
+.avail-label{font-size:var(--t-sm);color:var(--fg-secondary);font-weight:500}
+.avail-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--r-pill);background:var(--accent-soft);font-family:var(--font-mono);font-size:var(--t-xs);font-weight:600;color:var(--accent)}
+.avail-chip .ac-key{color:var(--fg-tertiary);font-weight:500}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:var(--t-md)}
+.data-table th,.data-table td{text-align:left;padding:12px 18px;border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:0}
+.data-table th{font-size:var(--t-xs);font-weight:600;color:var(--fg-tertiary);text-transform:uppercase;letter-spacing:.08em;font-family:var(--font-mono);background:var(--bg-surface-2)}
+.data-table td.col-step{font-family:var(--font-mono);font-weight:700;color:var(--accent);width:60px}
+.data-table td.col-time{font-family:var(--font-mono);color:var(--fg-secondary);width:130px}
+.data-table td.col-dev{width:110px}
+.role-tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:var(--r-pill);font-family:var(--font-mono);font-size:var(--t-xs);font-weight:600;background:var(--bg-surface-2);border:1px solid var(--border);color:var(--fg-secondary)}
+.role-tag.mo{background:color-mix(in srgb,var(--status-progress) 12%,transparent);color:var(--status-progress);border-color:color-mix(in srgb,var(--status-progress) 28%,transparent)}
+.role-tag.mt{background:color-mix(in srgb,#A78BFA 14%,transparent);color:#7c5cf3;border-color:color-mix(in srgb,#A78BFA 28%,transparent)}
+.role-tag.verify{background:color-mix(in srgb,var(--status-cancel) 14%,transparent);color:var(--status-cancel);border-color:color-mix(in srgb,var(--status-cancel) 28%,transparent)}
+
+/* FORM */
+.field{display:block;margin-bottom:16px}
+.field-label{font-size:var(--t-sm);color:var(--fg-secondary);margin-bottom:6px;font-weight:600}
+.field-hint{font-size:var(--t-xs);color:var(--fg-tertiary);margin-top:4px;font-family:var(--font-mono)}
+.field-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.input{width:100%;padding:9px 14px;background:var(--bg-input);border:1.5px solid var(--border-input);border-radius:var(--r-pill);color:var(--fg-primary);font-size:var(--t-md);outline:none;transition:border-color .15s,box-shadow .15s}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.input{border-radius:var(--r-md);resize:vertical;min-height:80px}
+.checkbox-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;font-size:var(--t-md);font-weight:500}
+.checkbox-row input{accent-color:var(--accent);width:16px;height:16px}
+
+/* ARTIFACTS */
+.art-list{display:flex;flex-direction:column;gap:8px}
+.art-chip{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-md);cursor:pointer;text-align:left;color:var(--fg-secondary);transition:all .15s;width:100%}
+.art-chip:hover{border-color:var(--border-strong)}
+.art-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.art-chip-mark{width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:5px;display:grid;place-items:center;background:var(--bg-surface);flex-shrink:0}
+.art-chip.on .art-chip-mark{background:var(--accent);border-color:var(--accent);color:#fff}
+.art-chip-label{font-family:var(--font-mono);font-size:var(--t-sm);font-weight:600}
+.art-chip-desc{margin-left:auto;font-size:var(--t-xs);color:var(--fg-tertiary);font-family:var(--font-mono)}
+
+/* Artifact matrix */
+.art-matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--t-md)}
+.art-matrix th,.art-matrix td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:center}
+.art-matrix thead th{font-size:var(--t-xs);font-weight:600;color:var(--fg-tertiary);text-transform:uppercase;letter-spacing:.08em;font-family:var(--font-mono);background:var(--bg-surface-2)}
+.art-matrix tbody th{text-align:left;font-family:var(--font-mono);font-weight:600;color:var(--fg-secondary)}
+.art-matrix tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.matrix-check{width:20px;height:20px;border:1.5px solid var(--border-strong);border-radius:5px;display:inline-grid;place-items:center;background:var(--bg-surface);cursor:pointer;transition:all .14s}
+.matrix-check.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.matrix-check svg{display:block}
+.matrix-check:not(.on) svg{visibility:hidden}
+
+.banner{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:var(--r-md);font-size:var(--t-sm);background:var(--accent-soft);border:1px solid var(--accent-strong);color:var(--fg-secondary);margin-top:14px}
+.banner svg{color:var(--accent);flex-shrink:0;margin-top:2px}
+.banner b{display:block;margin-bottom:2px;color:var(--accent)}
+
+/* REVIEW */
+.review-grid{display:grid;grid-template-columns:160px 1fr;gap:10px 24px}
+.review-label{color:var(--fg-tertiary);font-size:var(--t-sm);padding:6px 0;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-size:var(--t-xs)}
+.review-value{padding:4px 0;font-size:var(--t-md)}
+.review-row.full{grid-column:1/-1;margin-top:8px;padding-top:12px;border-top:1px solid var(--border)}
+.review-row.full .review-label,.review-row.full .review-value{padding:0;grid-column:auto}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;font-size:var(--t-xs);border-radius:var(--r-pill);background:var(--bg-surface-2);color:var(--fg-secondary);border:1px solid var(--border);margin:0 6px 4px 0}
+.tag.mono{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0}
+.tag-accent{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-strong)}
+
+/* FOOTER */
+.cfg-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.cfg-foot-right{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-pill);color:var(--fg-primary);font-size:var(--t-md);font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--border-strong);background:var(--bg-hover);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);box-shadow:var(--shadow-pink)}
+.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-primary[aria-disabled="true"]{background:color-mix(in srgb,var(--accent) 35%,var(--bg-surface));border-color:transparent;color:#fff}
+
+/* SUMMARY */
+.cfg-summary{position:sticky;top:88px;align-self:start;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)}
+.summary-eyebrow{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--fg-tertiary);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.cfg-summary h2{font-size:var(--t-xl);margin:6px 0 18px;font-weight:800;letter-spacing:-.02em}
+.summary-rows{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.summary-row{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--t-md)}
+.summary-row .lbl{color:var(--fg-tertiary)}
+.summary-row .val{font-weight:700}
+.summary-section{margin-top:18px}
+.summary-section .summary-eyebrow{margin-bottom:12px;display:block}
+.action-tl{display:flex;flex-direction:column;gap:8px}
+.tl-node{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg-surface-2);border:1px solid var(--border);border-radius:var(--r-pill);font-size:var(--t-sm)}
+.tl-dot{width:16px;height:16px;border-radius:var(--r-pill);background:var(--bg-surface);border:1.5px solid var(--border-strong);flex-shrink:0}
+.tl-edge{width:1px;height:8px;background:var(--border);margin-left:19px}
+.tl-icon{color:var(--fg-tertiary)}
+.summary-explain{margin-top:18px}
+.summary-explain summary{cursor:pointer;color:var(--accent);font-size:var(--t-sm);font-weight:600;list-style:none;display:flex;align-items:center;gap:6px}
+.summary-explain summary::-webkit-details-marker{display:none}
+.summary-explain p{margin:10px 0 0;font-size:var(--t-sm);color:var(--fg-secondary);line-height:1.55}
+
+/* PICKER MODAL */
+.modal-shade{position:fixed;inset:0;background:rgba(13,12,34,.45);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:50}
+.modal-shade.open{display:flex}
+.modal{width:480px;max-width:calc(100vw - 32px);background:var(--bg-surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);overflow:hidden;border:1px solid var(--border)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-head h3{margin:0;font-size:var(--t-lg);font-weight:700}
+.modal-close{width:30px;height:30px;border-radius:var(--r-pill);background:transparent;border:0;display:grid;place-items:center;color:var(--fg-tertiary);cursor:pointer}
+.modal-close:hover{background:var(--bg-hover);color:var(--fg-primary)}
+.dev-option{width:100%;display:flex;align-items:center;gap:12px;padding:14px 22px;background:transparent;border:0;border-bottom:1px solid var(--border);cursor:pointer;text-align:left;transition:background .12s}
+.dev-option:hover{background:var(--bg-hover)}
+.dev-option:last-child{border-bottom:0}
+.dev-option-main{flex:1}
+.dev-option-name{font-size:var(--t-md);font-weight:600}
+.dev-option-meta{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--fg-tertiary);margin-top:3px}
+.dev-option-os{font-family:var(--font-mono);font-size:10.5px;background:var(--bg-surface-2);padding:3px 8px;border-radius:var(--r-pill);color:var(--fg-tertiary);font-weight:500}
+</style>
+</head>
+<body data-screen-label="Remote Tests — Configure">
+
+<header class="topbar">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <span class="crumb">Test Cases</span>
+    <span class="crumb-sep">›</span>
+    <span class="crumb crumb-last" id="crumb-test">Remote VoIP Call</span>
+  </nav>
+  <div class="topbar-right">
+    <button class="search-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      Search runs, devices…
+      <kbd>⌘K</kbd>
+    </button>
+    <button class="icon-btn" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="ping"></span>
+    </button>
+    <button class="icon-btn" id="theme-toggle" aria-label="Toggle theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- TEST TYPE TABS -->
+<div class="type-tabs" id="type-tabs"></div>
+
+<main class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-eyebrow">Configure</div>
+      <h1 id="page-title">Remote VoIP Call</h1>
+      <div class="page-sub" id="page-sub"></div>
+    </div>
+    <div class="page-actions"><button class="btn">Cancel</button></div>
+  </div>
+
+  <div class="cfg-grid">
+    <aside class="cfg-rail" id="rail"></aside>
+    <div class="cfg-body" id="body"></div>
+    <aside class="cfg-summary" id="summary"></aside>
+  </div>
+</main>
+
+<div class="modal-shade" id="picker">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="picker-title">Pick a device</h3>
+      <button class="modal-close" id="picker-close" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="picker-body"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA — pulled from the spec
+   ============================================================ */
+const TEST_TYPES = {
+  VOIP_MO_MT: {
+    label: "Remote VoIP Call",
+    eyebrow: "Configure",
+    desc: "2 devices · ~45 s / iteration",
+    icon: "phone",
+    slots: [
+      { key:"mo",  role:"EXTERNAL_MO", title:"Select Remote MO Device", screen:"External device · RabbitMQ", phoneTone:"dark" },
+      { key:"mt",  role:"VOIP_MT",     title:"Select VoIP MT Device",   screen:"AWS Connect DID · ready",     phoneTone:"dark" },
+    ],
+    steps: [
+      { n:1, time:"00:30:000", dev:"MO",     devClass:"mo",     action:"MO dials to MT" },
+      { n:2, time:"00:05:000", dev:"Verify", devClass:"verify", action:"Verify Connected state" },
+      { n:3, time:"00:20:000", dev:"MT",     devClass:"mt",     action:"MT ends call" },
+    ],
+    timeline: [ "MO dials MT (AWS DID)", "Verify connected state", "MT ends call" ],
+    params: { phone:false, sms:false },
+    artifactLayout: "matrix",
+    artifactRows: ["MO device","MT device"],
+    artifactCols: ["Device Logs","Video","User Actions","Device KPIs","Network KPIs"],
+    artifactDefaults: { "MO device":["Video","Device Logs"], "MT device":["Video"] },
+    artifactSingleLabel: null,
+    explain: "RabbitMQ sends a DIAL command to the external device's .xperf-testing queue. AWS Connect routes the inbound call to the assigned DID. We watch xperf-call-states for connected → disconnect transitions. Artifacts upload to S3 after the run.",
+    backend: "VOIP_MO_MT",
+    iteration: "~45 s",
+  },
+  MO_SMS: {
+    label: "Send short SMS without validation",
+    desc: "1 device · ~8 s / iteration",
+    icon: "sms",
+    slots: [
+      { key:"mo", role:"MO", title:"Select MO Device", screen:"Lab device · ready", phoneTone:"dark" },
+    ],
+    steps: [
+      { n:1, time:"00:08:000", dev:"MO", devClass:"mo", action:"MO sends SMS text to RMT" },
+    ],
+    timeline: [ "MO sends SMS" ],
+    params: { phone:true, sms:true },
+    artifactLayout: "list",
+    artifactSingleLabel: "Save SMS logs",
+    artifactListOptions: ["Save SMS logs","Save device logs","Save video","Save user actions","Save device KPIs","Save network KPIs"],
+    artifactDefaultsList: ["Save SMS logs"],
+    explain: "The SnapBox agent calls POST /api/sendSMS on the MO device with the supplied target number and text. Pass = SnapBox accepted the send. No delivery validation is performed against the receiver.",
+    backend: "MO_SMS",
+    iteration: "~8 s",
+  },
+  MO_MT_SMS: {
+    label: "Validate SMS",
+    desc: "2 devices · ~12 s / iteration",
+    icon: "sms",
+    slots: [
+      { key:"mo", role:"MO", title:"Select MO Device", screen:"Lab device · ready",  phoneTone:"dark" },
+      { key:"mt", role:"MT", title:"Select MT Device", screen:"Lab device · ready",  phoneTone:"dark" },
+    ],
+    steps: [
+      { n:1, time:"00:05:000", dev:"MO", devClass:"mo", action:"MO sends SMS text to MT" },
+      { n:2, time:"00:07:000", dev:"MT", devClass:"mt", action:"MT receives SMS from MO" },
+    ],
+    timeline: [ "MO sends SMS to MT", "MT receives SMS" ],
+    params: { phone:false, sms:true },
+    artifactLayout: "matrix",
+    artifactRows: ["MO device","MT device"],
+    artifactCols: ["Device Logs","Video","User Actions","Device KPIs","Network KPIs"],
+    artifactDefaults: { "MO device":["Device Logs"], "MT device":["Device Logs","Video"] },
+    artifactSingleLabel: "Save SMS logs",
+    explain: "SnapBox sends from MO. We subscribe MT to INCOMING_SMS monitoring and validate sender + text content per part. Apple MT devices skip validation and pass on receipt of any matching part.",
+    backend: "MO_MT_SMS",
+    iteration: "~12 s",
+  },
+  EXT_MO_MT: {
+    label: "External voice call",
+    desc: "2 devices · ~55 s / iteration",
+    icon: "phone",
+    slots: [
+      { key:"mo",  role:"EXTERNAL_MO", title:"Select Remote MO Device", screen:"External device · RabbitMQ", phoneTone:"dark" },
+      { key:"mt",  role:"MT",          title:"Select MT Device",         screen:"Lab device · ready",         phoneTone:"dark" },
+    ],
+    steps: [
+      { n:1, time:"00:35:000", dev:"MO", devClass:"mo", action:"RMO device dials MT" },
+      { n:2, time:"00:20:000", dev:"MT", devClass:"mt", action:"MT closes call (wait for end)" },
+    ],
+    timeline: [ "RMO device dials MT", "MT closes call" ],
+    params: { phone:false, sms:false },
+    artifactLayout: "matrix",
+    artifactRows: ["MO device","EXTERNAL_MO device"],
+    artifactCols: ["Device Logs","Video","User Actions","Device KPIs","Network KPIs"],
+    artifactDefaults: { "MO device":["Device Logs","Video"], "EXTERNAL_MO device":["Device Logs"] },
+    artifactSingleLabel: "Save call logs",
+    explain: "External MO receives a DIAL command via RabbitMQ. SnapBox monitors MT for CALL_STATE changes (RINGING → CONNECTED → DISCONNECTED). Both sides record artifacts. Video adds ~10 s to overall duration.",
+    backend: "EXT_MO_MT",
+    iteration: "~55 s",
+  },
+  VIDEO: {
+    label: "Remote video playback",
+    desc: "Artifact option — attaches to any test",
+    icon: "video",
+    slots: [],
+    steps: [],
+    timeline: [ "Captured silently in background" ],
+    params: { phone:false, sms:false },
+    artifactLayout: "info-only",
+    explain: "Remote video playback is not a standalone test type. It is captured silently as a background artifact during any selected test and appears only in the report's Artifacts section after finalization. Toggle the VIDEO checkbox in step 3 of any other test to include it.",
+    backend: "—",
+    iteration: "—",
+  }
+};
+
+const DEVICES = {
+  mo: [
+    { id:'mo1', name:'Pixel 8 — MO-Lab-01',     os:'Android 14', state:'online', sn:'SN-LAB-301', meta:'us-west-2 · lab-pool-a' },
+    { id:'mo2', name:'Galaxy S24 — MO-Lab-04',  os:'Android 14', state:'online', sn:'SN-LAB-340', meta:'us-east-1 · lab-pool-b' },
+    { id:'mo3', name:'iPhone 15 — MO-Lab-09',   os:'iOS 17.4',   state:'busy',   sn:'SN-LAB-412', meta:'eu-west-1 · in use' },
+  ],
+  mt: [
+    { id:'mt1', name:'Pixel 7 — MT-Lab-02',     os:'Android 14', state:'online', sn:'SN-LAB-208', meta:'us-west-2 · lab-pool-a' },
+    { id:'mt2', name:'iPhone 14 — MT-Lab-05',   os:'iOS 17.2',   state:'online', sn:'SN-LAB-271', meta:'us-east-1 · lab-pool-b' },
+    { id:'mt3', name:'Galaxy A55 — MT-Lab-11',  os:'Android 14', state:'online', sn:'SN-LAB-380', meta:'us-west-2 · lab-pool-a' },
+    { id:'mt4', name:'+1 415-555-0150 (DID)',   os:'AWS DID',    state:'online', sn:'arn:aws:connect:…/0150', meta:'US · TOLL_FREE' },
+  ]
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  testType: "VOIP_MO_MT",
+  step: 0,
+  picked: { mo:null, mt:null },
+  bulk: 1,
+  params: {
+    phone: "+1 555-0150",
+    sms:   "Hello from SNAP automation",
+    iterations: 1,
+    delay: 3,
+    startAt: "",
+    duration: "1 minute",
+    releaseAfter: true,
+  },
+  artifactsMatrix: {},  // {row: Set(col)}
+  artifactsList: new Set(),
+};
+
+const STEPS = ["Devices","Parameters","Artifacts","Review"];
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+const def = () => TEST_TYPES[state.testType];
+
+function resetArtifacts() {
+  const d = def();
+  state.artifactsMatrix = {};
+  if (d.artifactLayout === "matrix") {
+    (d.artifactRows || []).forEach(r => {
+      state.artifactsMatrix[r] = new Set(d.artifactDefaults?.[r] || []);
+    });
+  }
+  state.artifactsList = new Set(d.artifactDefaultsList || []);
+}
+
+function renderTabs() {
+  const wrap = $("#type-tabs");
+  const types = ["VOIP_MO_MT","MO_SMS","MO_MT_SMS","EXT_MO_MT","VIDEO"];
+  wrap.innerHTML = types.map(t => {
+    const d = TEST_TYPES[t];
+    const active = state.testType === t ? "active" : "";
+    const icSms = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+    const icPhone = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+    const icVideo = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m23 7-7 5 7 5z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`;
+    const ic = d.icon === "sms" ? icSms : d.icon === "video" ? icVideo : icPhone;
+    return `<button class="type-tab ${active}" data-type="${t}">
+      <span class="ic">${ic}</span>
+      <span>${d.label}</span>
+      <span class="type-tab-code mono">${d.backend}</span>
+    </button>`;
+  }).join("");
+  wrap.querySelectorAll(".type-tab").forEach(b => {
+    b.addEventListener("click", () => {
+      state.testType = b.dataset.type;
+      state.step = 0;
+      state.picked = { mo:null, mt:null };
+      resetArtifacts();
+      renderAll();
+    });
+  });
+}
+
+function renderHeader() {
+  const d = def();
+  $("#crumb-test").textContent = d.label;
+  $("#page-title").textContent = d.label;
+  $("#page-sub").innerHTML = `Backend type <span class="mono">${d.backend}</span> · ${d.desc}`;
+}
+
+function renderRail() {
+  $("#rail").innerHTML = STEPS.map((s,i) => {
+    const cls = i === state.step ? "active" : (i < state.step ? "done" : "");
+    const num = i < state.step
+      ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>`
+      : (i+1);
+    return `<button class="cfg-step ${cls}" data-step="${i}"><span class="cfg-step-num">${num}</span><span>${s}</span></button>`;
+  }).join("");
+  $("#rail").querySelectorAll(".cfg-step").forEach(b => {
+    b.addEventListener("click", () => { state.step = +b.dataset.step; renderBody(); renderRail(); renderSummary(); });
+  });
+}
+
+function renderSummary() {
+  const d = def();
+  const filledCount = d.slots.length === 0 ? 0 : d.slots.filter(s => state.picked[s.key]).length;
+  const artCount = d.artifactLayout === "matrix"
+    ? Object.values(state.artifactsMatrix).reduce((acc,s) => acc + s.size, 0)
+    : state.artifactsList.size;
+
+  $("#summary").innerHTML = `
+    <div class="summary-eyebrow">Test summary</div>
+    <h2>${d.label}</h2>
+    <div class="summary-rows">
+      <div class="summary-row"><span class="lbl">Type</span><b class="val mono">${d.backend}</b></div>
+      <div class="summary-row"><span class="lbl">Devices</span><b class="val">${filledCount} / ${d.slots.length}</b></div>
+      <div class="summary-row"><span class="lbl">Iterations</span><b class="val mono">${state.params.iterations}</b></div>
+      <div class="summary-row"><span class="lbl">Artifacts</span><b class="val mono">${artCount}</b></div>
+      <div class="summary-row"><span class="lbl">Est. duration</span><b class="val mono">${d.iteration}</b></div>
+    </div>
+    <div class="summary-section">
+      <span class="summary-eyebrow">Action timeline</span>
+      <div class="action-tl">
+        ${d.timeline.map((t,i) => `
+          ${i>0 ? '<span class="tl-edge"></span>' : ''}
+          <div class="tl-node"><span class="tl-dot"></span><span>${t}</span></div>
+        `).join("")}
+      </div>
+    </div>
+    <details class="summary-explain">
+      <summary>▸ What happens when I press Start?</summary>
+      <p>${d.explain}</p>
+    </details>
+  `;
+}
+
+/* ─── Step bodies ─── */
+function bodyDevices() {
+  const d = def();
+  if (d.slots.length === 0) {
+    return `<div class="card">
+      <div class="card-head"><h3>Devices</h3></div>
+      <div class="card-body">
+        <div class="banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div><b>No devices to pick.</b> ${d.explain}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  const cols = d.slots.length === 1 ? "cols-1" : "cols-2";
+  const stageHTML = d.slots.map(s => phoneSlot(s)).join("");
+  return `
+    <div class="card">
+      <div class="card-head">
+        <h3>Devices</h3>
+        <span class="summary-eyebrow">${d.slots.map(s => s.role).join(" + ")}</span>
+      </div>
+      <div class="dev-toolbar">
+        <span class="dev-toolbar-label">Bulk size</span>
+        <input class="bulk-input" type="number" min="1" max="500" value="${state.bulk}" id="bulk-in" />
+        <div class="divider-v"></div>
+        <div class="avail-row">
+          <span class="avail-label">Available devices:</span>
+          ${d.slots.map(s => `<span class="avail-chip"><span class="ac-key">${s.role}</span><span>${slotAvail(s.key)}</span></span>`).join("")}
+        </div>
+      </div>
+      <div class="dev-stage ${cols}">
+        ${stageHTML}
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Steps</th><th>Time Taken</th><th>Device</th><th>Actions</th></tr></thead>
+        <tbody>${d.steps.map(s => `
+          <tr>
+            <td class="col-step">${s.n}</td>
+            <td class="col-time">${s.time}</td>
+            <td class="col-dev"><span class="role-tag ${s.devClass}">${s.dev}</span></td>
+            <td>${s.action}</td>
+          </tr>`).join("")}</tbody>
+      </table>
+    </div>`;
+}
+function slotAvail(k) {
+  return DEVICES[k] ? DEVICES[k].filter(x => x.state === "online").length : 0;
+}
+function phoneSlot(slot) {
+  const dev = state.picked[slot.key];
+  const filled = !!dev;
+  const cls = filled ? "is-filled" : "is-empty";
+  const inside = filled
+    ? `<div class="dev-filled" data-open-picker="${slot.key}">
+        <div class="dev-filled-row">
+          <span class="dev-state dev-${dev.state}"></span>
+          <span class="dev-filled-name">${dev.name}</span>
+          <span class="dev-filled-os">${dev.os}</span>
+        </div>
+        <div class="dev-filled-meta">${dev.sn}</div>
+      </div>`
+    : `<button class="dev-pick-cta" data-open-picker="${slot.key}">
+        <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        ${slot.title}
+      </button>`;
+  const placeholder = filled
+    ? slot.screen
+    : (slot.role === "VOIP_MT" ? "No DID assigned" : "No device assigned");
+  return `<div class="dev-slot-card ${cls}" data-slot="${slot.key}">
+    <span class="dev-slot-tag"><span class="role-dot"></span>${slot.role}</span>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-placeholder-label">${placeholder}</div>
+        ${inside}
+      </div>
+    </div>
+    <div class="dev-filled-meta">${slot.role === "EXTERNAL_MO" ? "External device · RabbitMQ" : slot.role === "VOIP_MT" ? "AWS Connect DID" : "Lab device"}</div>
+  </div>`;
+}
+
+function bodyParameters() {
+  const d = def();
+  const p = state.params;
+  return `
+    <div class="card">
+      <div class="card-head"><h3>Parameters</h3></div>
+      <div class="card-body">
+        ${d.params.phone ? `
+          <div class="field">
+            <div class="field-label">Target phone number</div>
+            <input class="input mono" id="p-phone" value="${p.phone}" placeholder="+1 …" />
+            <div class="field-hint">Any e.164 number. SnapBox routes via the carrier on the MO device.</div>
+          </div>` : ""}
+        ${d.params.sms ? `
+          <div class="field">
+            <div class="field-label">SMS text</div>
+            <textarea class="input" id="p-sms" rows="3">${p.sms}</textarea>
+            <div class="field-hint">${p.sms.length} chars · arrives in ${Math.max(1, Math.ceil(p.sms.length/160))} part(s)</div>
+          </div>` : ""}
+
+        <div class="field-row-3">
+          <div class="field">
+            <div class="field-label">Iterations</div>
+            <input class="input mono" type="number" min="1" max="500" id="p-iter" value="${p.iterations}" />
+            <div class="field-hint">1 – 500 repeats</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Delay between iterations</div>
+            <input class="input mono" type="number" min="1" max="3600" id="p-delay" value="${p.delay}" />
+            <div class="field-hint">seconds · 1 – 3600</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Duration</div>
+            <input class="input mono" id="p-dur" value="${p.duration}" />
+            <div class="field-hint">auto-calculated · editable</div>
+          </div>
+        </div>
+
+        <div class="field-row-2">
+          <div class="field">
+            <div class="field-label">Start test at</div>
+            <input class="input mono" type="datetime-local" id="p-start" value="${p.startAt}" />
+            <div class="field-hint">leave empty to run immediately</div>
+          </div>
+          <div class="field" style="display:flex;align-items:center;padding-top:24px">
+            <label class="checkbox-row" style="width:100%;cursor:pointer">
+              <input type="checkbox" id="p-release" ${p.releaseAfter ? "checked" : ""}/>
+              Release device after test
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bodyArtifacts() {
+  const d = def();
+  if (d.artifactLayout === "info-only") {
+    return `<div class="card"><div class="card-head"><h3>Artifacts</h3></div><div class="card-body">
+      <div class="banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div><b>Remote video playback isn't a test type.</b> Toggle the VIDEO checkbox inside another test's Artifacts step — it records silently in the background and appears in the Test Report afterwards.</div>
+      </div></div></div>`;
+  }
+  if (d.artifactLayout === "list") {
+    return `<div class="card">
+      <div class="card-head"><h3>Artifacts</h3><span class="summary-eyebrow">Single device — pick what to save</span></div>
+      <div class="card-body">
+        <div class="art-list">
+          ${d.artifactListOptions.map(opt => {
+            const on = state.artifactsList.has(opt);
+            return `<button class="art-chip ${on?"on":""}" data-art="${opt}">
+              <span class="art-chip-mark">${on ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>' : ""}</span>
+              <span class="art-chip-label">${opt}</span>
+              <span class="art-chip-desc">${describeArt(opt)}</span>
+            </button>`;
+          }).join("")}
+        </div>
+        <div class="banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div><b>Cloud feature required.</b> If your subscription excludes Cloud, the artifacts step is disabled and shows: "Unavailable. Your subscription plan must include Cloud feature."</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  // matrix
+  return `<div class="card">
+    <div class="card-head"><h3>Artifacts</h3><span class="summary-eyebrow">Multi-device — pick per device</span></div>
+    <div class="card-body" style="padding:0">
+      <table class="art-matrix">
+        <thead>
+          <tr><th style="text-align:left">Device</th>${d.artifactCols.map(c => `<th>${c}</th>`).join("")}</tr>
+        </thead>
+        <tbody>
+          ${d.artifactRows.map(r => `
+            <tr>
+              <th>${r}</th>
+              ${d.artifactCols.map(c => {
+                const on = state.artifactsMatrix[r]?.has(c);
+                return `<td><span class="matrix-check ${on?"on":""}" data-row="${r}" data-col="${c}">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+                </span></td>`;
+              }).join("")}
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+      <div style="padding:18px 22px"><div class="banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div><b>${d.artifactSingleLabel || "Logs"}</b> are enabled by default. Toggling Video on either device adds ~10 s to the run.</div>
+      </div></div>
+    </div>
+  </div>`;
+}
+function describeArt(opt) {
+  const m = {
+    "Save SMS logs": "sms_logs.json",
+    "Save call logs": "call_logs.json",
+    "Save device logs": "logcat / syslog",
+    "Save video": ".mp4 · 9:16",
+    "Save user actions": "actions.jsonl",
+    "Save device KPIs": "kpi-device.csv",
+    "Save network KPIs": "kpi-network.csv",
+  };
+  return m[opt] || "";
+}
+
+function bodyReview() {
+  const d = def();
+  const p = state.params;
+  const filled = d.slots.map(s => state.picked[s.key]).filter(Boolean);
+  const arts = d.artifactLayout === "matrix"
+    ? Object.entries(state.artifactsMatrix).flatMap(([r,set]) => [...set].map(c => `${r} → ${c}`))
+    : [...state.artifactsList];
+  return `<div class="card">
+    <div class="card-head"><h3>Review & start</h3></div>
+    <div class="card-body">
+      <div class="review-grid">
+        <div class="review-label">Type</div>
+        <div class="review-value"><span class="tag mono tag-accent">${d.backend}</span> ${d.label}</div>
+
+        <div class="review-label">Devices</div>
+        <div class="review-value">${filled.length === 0
+          ? '<span class="tag">No devices required</span>'
+          : filled.map((dev,i) => `<span class="tag mono">${d.slots[i].role} · ${dev.name}</span>`).join("")}</div>
+
+        <div class="review-label">Iterations</div>
+        <div class="review-value mono">${p.iterations} × ${d.iteration}  ·  delay ${p.delay}s  ·  bulk ${state.bulk}</div>
+
+        <div class="review-label">Schedule</div>
+        <div class="review-value mono">${p.startAt ? p.startAt : "Run immediately"}</div>
+
+        <div class="review-label">Duration</div>
+        <div class="review-value mono">${p.duration}</div>
+
+        ${d.params.phone ? `<div class="review-label">Target #</div><div class="review-value mono">${p.phone}</div>` : ""}
+        ${d.params.sms ? `<div class="review-label">SMS text</div><div class="review-value">"${p.sms}"</div>` : ""}
+
+        <div class="review-label">Release after</div>
+        <div class="review-value">${p.releaseAfter ? "Yes" : "No"}</div>
+
+        <div class="review-label">Artifacts</div>
+        <div class="review-value">${arts.length ? arts.map(a => `<span class="tag mono">${a}</span>`).join("") : '<span class="tag">None</span>'}</div>
+
+        <div class="review-row full">
+          <div class="review-label">Action plan</div>
+          <div class="review-value" style="margin-top:8px">
+            <div class="action-tl">
+              ${d.timeline.map((t,i) => `${i>0?'<span class="tl-edge"></span>':''}<div class="tl-node"><span class="tl-dot"></span><span>${t}</span></div>`).join("")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderBody() {
+  const d = def();
+  let html = "";
+  if (state.step === 0) html = bodyDevices();
+  else if (state.step === 1) html = bodyParameters();
+  else if (state.step === 2) html = bodyArtifacts();
+  else html = bodyReview();
+
+  // Footer
+  const filled = d.slots.length === 0 || d.slots.every(s => state.picked[s.key]);
+  const canContinue = state.step === 0 ? filled : true;
+  const isLast = state.step === STEPS.length - 1;
+  html += `<div class="cfg-foot">
+    <div>${state.step > 0 ? '<button class="btn" id="btn-back">← Back</button>' : ''}</div>
+    <div class="cfg-foot-right">
+      <button class="btn">Save</button>
+      <button class="btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Schedule…</button>
+      <button class="btn btn-primary" id="btn-primary" ${canContinue ? "" : 'aria-disabled="true"'}>
+        ${isLast ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 4v16l14-8z"/></svg> Run test' : `Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>`}
+      </button>
+    </div>
+  </div>`;
+
+  $("#body").innerHTML = html;
+  wireBody();
+}
+
+function wireBody() {
+  // Devices step
+  document.querySelectorAll("[data-open-picker]").forEach(b => {
+    b.addEventListener("click", () => openPicker(b.dataset.openPicker));
+  });
+  const bulkIn = $("#bulk-in");
+  if (bulkIn) bulkIn.addEventListener("input", e => { state.bulk = +e.target.value || 1; });
+
+  // Parameters step
+  const map = { "p-phone":"phone", "p-sms":"sms", "p-iter":"iterations", "p-delay":"delay", "p-dur":"duration", "p-start":"startAt" };
+  Object.entries(map).forEach(([id,k]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", e => {
+      let v = e.target.value;
+      if (k === "iterations" || k === "delay") v = +v || 0;
+      state.params[k] = v;
+      if (k === "sms") {
+        const hint = el.parentElement.querySelector(".field-hint");
+        if (hint) hint.textContent = `${v.length} chars · arrives in ${Math.max(1, Math.ceil(v.length/160))} part(s)`;
+      }
+      renderSummary();
+    });
+  });
+  const rel = $("#p-release");
+  if (rel) rel.addEventListener("change", e => { state.params.releaseAfter = e.target.checked; });
+
+  // Artifacts list
+  document.querySelectorAll("[data-art]").forEach(b => {
+    b.addEventListener("click", () => {
+      const opt = b.dataset.art;
+      if (state.artifactsList.has(opt)) state.artifactsList.delete(opt);
+      else state.artifactsList.add(opt);
+      renderBody(); renderSummary();
+    });
+  });
+  // Artifacts matrix
+  document.querySelectorAll(".matrix-check").forEach(b => {
+    b.addEventListener("click", () => {
+      const r = b.dataset.row, c = b.dataset.col;
+      if (!state.artifactsMatrix[r]) state.artifactsMatrix[r] = new Set();
+      const set = state.artifactsMatrix[r];
+      if (set.has(c)) set.delete(c); else set.add(c);
+      b.classList.toggle("on");
+      renderSummary();
+    });
+  });
+
+  // Footer
+  const back = $("#btn-back");
+  if (back) back.addEventListener("click", () => { state.step = Math.max(0, state.step - 1); renderBody(); renderRail(); renderSummary(); });
+  const prim = $("#btn-primary");
+  if (prim) prim.addEventListener("click", () => {
+    if (prim.getAttribute("aria-disabled") === "true") return;
+    if (state.step < STEPS.length - 1) { state.step++; renderBody(); renderRail(); renderSummary(); }
+    else alert("▶ Test started");
+  });
+}
+
+/* ─── Picker modal ─── */
+function openPicker(slotKey) {
+  $("#picker-title").textContent = "Pick a " + (slotKey === "mo" ? "MO" : "MT") + " device";
+  $("#picker-body").innerHTML = DEVICES[slotKey].map(d => `
+    <button class="dev-option" data-id="${d.id}">
+      <span class="dev-state dev-${d.state}"></span>
+      <div class="dev-option-main">
+        <div class="dev-option-name">${d.name}</div>
+        <div class="dev-option-meta">${d.sn} · ${d.meta}</div>
+      </div>
+      <span class="dev-option-os">${d.os}</span>
+    </button>
+  `).join("");
+  $("#picker-body").querySelectorAll(".dev-option").forEach(b => {
+    b.addEventListener("click", () => {
+      state.picked[slotKey] = DEVICES[slotKey].find(x => x.id === b.dataset.id);
+      $("#picker").classList.remove("open");
+      renderBody(); renderSummary();
+    });
+  });
+  $("#picker").classList.add("open");
+}
+$("#picker-close").addEventListener("click", () => $("#picker").classList.remove("open"));
+$("#picker").addEventListener("click", e => { if (e.target.id === "picker") $("#picker").classList.remove("open"); });
+
+/* ─── Theme ─── */
+$("#theme-toggle").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+});
+
+function renderAll() {
+  renderTabs();
+  renderHeader();
+  renderRail();
+  renderBody();
+  renderSummary();
+}
+
+resetArtifacts();
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>Remote VoIP Call — Configure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — pulled from the SNAP redesign system
+   ============================================================ */
+:root {
+  --accent:        #ea4c89;
+  --accent-hover:  #d63d78;
+  --accent-soft:   rgba(234,76,137,0.10);
+  --accent-strong: rgba(234,76,137,0.25);
+
+  --font-sans: "Plus Jakarta Sans", -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --status-idle:       #94A3B8;
+  --status-progress:   #3B82F6;
+  --status-pass:       #22C55E;
+  --status-fail:       #EF4444;
+  --status-cancel:     #F59E0B;
+
+  --t-xs:11px; --t-sm:12px; --t-md:13px; --t-base:14px;
+  --t-lg:16px; --t-xl:20px; --t-2xl:28px;
+
+  --r-sm:6px; --r-md:10px; --r-lg:16px; --r-pill:999px;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 6px rgba(0,0,0,0.07), 0 3px 12px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.07);
+  --shadow-pink: 0 6px 20px rgba(234,76,137,0.32);
+
+  --bg-app:       #f5f5f7;
+  --bg-elev:      #ffffff;
+  --bg-surface:   #ffffff;
+  --bg-surface-2: #f5f5f7;
+  --bg-hover:     #f0f0f5;
+  --bg-input:     #ffffff;
+
+  --fg-primary:    #0d0c22;
+  --fg-secondary:  #44435a;
+  --fg-tertiary:   #6e6d7a;
+  --fg-quaternary: #9e9ea7;
+
+  --border:        #e8e8ed;
+  --border-strong: #d0d0da;
+  --border-input:  #dcdce4;
+}
+
+[data-theme="dark"] {
+  --bg-app:#0B0F14; --bg-elev:#10161E; --bg-surface:#141B25;
+  --bg-surface-2:#1A2330; --bg-hover:#1E2A38; --bg-input:#0E141C;
+  --fg-primary:#E6EDF6; --fg-secondary:#B7C2D0; --fg-tertiary:#7A8699; --fg-quaternary:#4F5B6B;
+  --border:#1F2A38; --border-strong:#2C3A4D; --border-input:#243140;
+  --accent-soft:rgba(234,76,137,0.16); --accent-strong:rgba(234,76,137,0.32);
+}
+
+* { box-sizing: border-box; }
+html, body { margin:0; height:100%; }
+body {
+  font-family: var(--font-sans); font-size: var(--t-base);
+  color: var(--fg-primary); background: var(--bg-app);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+.mono { font-family: var(--font-mono); font-size: 0.92em; letter-spacing:-0.01em; }
+button, input, textarea { font: inherit; color: inherit; }
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 32px;
+  background: rgba(255,255,255,0.85);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top:0; z-index: 30;
+  box-shadow: var(--shadow-xs);
+}
+[data-theme="dark"] .topbar { background: rgba(16,22,30,0.88); }
+
+.crumbs { display:flex; align-items:center; gap:8px; font-size: var(--t-md); }
+.crumb { color: var(--fg-tertiary); cursor:pointer; transition: color .15s; }
+.crumb:hover { color: var(--fg-primary); }
+.crumb-sep { color: var(--fg-quaternary); }
+.crumb-last { color: var(--fg-primary); font-weight: 600; }
+
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.search-pill {
+  display:flex; align-items:center; gap:8px;
+  padding: 8px 14px; border-radius: var(--r-pill);
+  background: var(--bg-surface-2);
+  border: 1.5px solid var(--border);
+  color: var(--fg-tertiary); font-size: var(--t-md);
+  cursor: pointer; min-width: 280px;
+}
+.search-pill kbd {
+  margin-left: auto; font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 4px;
+  border: 1px solid var(--border); color: var(--fg-tertiary);
+}
+.icon-btn {
+  position: relative;
+  width: 34px; height: 34px;
+  background: transparent; border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  display: grid; place-items: center;
+  color: var(--fg-secondary); cursor: pointer; transition: all .15s;
+}
+.icon-btn:hover { background: var(--bg-hover); color: var(--fg-primary); border-color: var(--border-strong); }
+.ping {
+  position:absolute; top:6px; right:6px;
+  width:6px; height:6px; border-radius: var(--r-pill);
+  background: var(--status-fail);
+  box-shadow: 0 0 0 2px var(--bg-elev);
+}
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+.page { padding: 28px 32px 40px; max-width: 1480px; margin: 0 auto; }
+.page-head {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom: 28px; gap: 16px;
+}
+.page-eyebrow {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: 0.10em; color: var(--accent); text-transform: uppercase;
+  margin-bottom: 8px; font-weight: 600;
+}
+.page-head h1 {
+  font-size: var(--t-2xl); margin: 0; font-weight: 800; letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.page-sub { color: var(--fg-tertiary); font-size: var(--t-md); margin-top: 8px; }
+.page-sub .mono { color: var(--fg-secondary); }
+
+/* ============================================================
+   CFG GRID
+   ============================================================ */
+.cfg-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ---- Stepper rail ---- */
+.cfg-rail { display:flex; flex-direction:column; gap:4px; }
+.cfg-step {
+  display:flex; align-items:center; gap:12px;
+  padding: 11px 14px; border-radius: var(--r-md);
+  background: transparent; border: 0;
+  font-size: var(--t-md); color: var(--fg-secondary);
+  text-align: left; cursor: pointer; transition: background .14s;
+  width: 100%;
+}
+.cfg-step:hover { background: var(--bg-hover); }
+.cfg-step.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.cfg-step-num {
+  width: 24px; height: 24px; border-radius: var(--r-pill);
+  background: var(--bg-surface-2); border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.cfg-step.active .cfg-step-num { background: var(--accent); color:#fff; border-color: var(--accent); }
+.cfg-step.done   .cfg-step-num { background: var(--status-pass); color:#fff; border-color: var(--status-pass); }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+.card + .card { margin-top: 16px; }
+.card-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 16px 22px; border-bottom: 1px solid var(--border);
+}
+.card-head h3 { margin:0; font-size: var(--t-lg); font-weight: 700; letter-spacing:-0.01em; }
+.card-body { padding: 22px; }
+
+/* ============================================================
+   DEVICE STAGE — two-phone visual carried over from old screen
+   ============================================================ */
+.dev-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  padding: 28px 24px 32px;
+  background:
+    radial-gradient(700px 280px at 50% -10%,
+      color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%),
+    var(--bg-surface);
+  border-bottom: 1px dashed var(--border);
+}
+.dev-slot-card {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 12px 8px;
+  border-radius: var(--r-lg);
+  transition: background .18s;
+}
+.dev-slot-card.is-empty:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.dev-slot-tag {
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 4px 12px; border-radius: var(--r-pill);
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: 0.06em; font-weight: 600;
+  color: var(--fg-secondary);
+}
+.dev-slot-tag .role-dot {
+  width: 6px; height: 6px; border-radius: var(--r-pill);
+  background: var(--accent);
+}
+
+/* Phone bezel — SVG-free, pure CSS */
+.phone {
+  position: relative;
+  width: 196px; height: 400px;
+  border-radius: 38px;
+  background: linear-gradient(160deg, #1c1c22 0%, #0a0a10 100%);
+  padding: 9px;
+  box-shadow:
+    0 30px 60px -20px rgba(13,12,34,0.35),
+    0 14px 28px -16px rgba(13,12,34,0.30),
+    inset 0 0 0 1.5px rgba(255,255,255,0.06);
+}
+.phone-screen {
+  width: 100%; height: 100%;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #fafafd 0%, #efeff4 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.phone-notch {
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 96px; height: 22px;
+  background: #0a0a10;
+  border-radius: 0 0 18px 18px;
+  z-index: 2;
+}
+.phone-screen::before {
+  /* subtle striped placeholder content */
+  content: "";
+  position: absolute; inset: 36px 24px 80px;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(13,12,34,0.04) 0px,
+    rgba(13,12,34,0.04) 6px,
+    transparent 6px, transparent 14px
+  );
+  border-radius: 12px;
+  opacity: 0.7;
+}
+.phone-placeholder-label {
+  position: absolute; top: 50px; left: 24px; right: 24px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--fg-quaternary); text-align: center;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  z-index: 1;
+}
+
+/* Device picker button — sits inside the phone area */
+.dev-pick-cta {
+  position: relative;
+  z-index: 3;
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 18px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  color: var(--fg-primary);
+  font-size: var(--t-md); font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all .18s;
+}
+.dev-pick-cta:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(234,76,137,0.22);
+}
+.dev-pick-cta .ic { color: var(--accent); }
+
+/* Filled state: replaces the CTA with a compact card */
+.dev-filled {
+  position: relative; z-index: 3;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 14px;
+  min-width: 180px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--r-md);
+  box-shadow: 0 6px 18px rgba(234,76,137,0.20);
+  cursor: pointer;
+}
+.dev-filled-row { display:flex; align-items:center; gap:8px; }
+.dev-state {
+  width: 8px; height: 8px; border-radius: var(--r-pill); flex-shrink: 0;
+  background: var(--status-idle);
+}
+.dev-online { background: var(--status-pass); box-shadow: 0 0 0 2px color-mix(in srgb, var(--status-pass) 30%, transparent); }
+.dev-busy    { background: var(--status-cancel); }
+.dev-offline { background: var(--status-fail); }
+.dev-filled-name { font-size: var(--t-md); font-weight: 600; }
+.dev-filled-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-tertiary); }
+.dev-filled-os {
+  margin-left: auto; font-family: var(--font-mono); font-size: 9.5px;
+  color: var(--fg-tertiary);
+  background: var(--bg-surface-2);
+  padding: 2px 6px; border-radius: var(--r-pill);
+}
+
+/* Filled state: phone screen shows a "connected" treatment */
+.dev-slot-card.is-filled .phone-screen {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 6%, #fafafd) 0%,
+    color-mix(in srgb, var(--accent) 3%, #efeff4) 100%);
+}
+.dev-slot-card.is-filled .phone-screen::before { opacity: 0.4; }
+.dev-slot-card.is-filled .phone {
+  box-shadow:
+    0 30px 60px -20px rgba(234,76,137,0.25),
+    0 14px 28px -16px rgba(234,76,137,0.20),
+    inset 0 0 0 1.5px rgba(255,255,255,0.06);
+}
+
+/* Bulk size pill row above stage */
+.dev-toolbar {
+  display:flex; align-items:center; gap: 14px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-2);
+}
+.dev-toolbar-label {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg-tertiary); font-weight: 600;
+}
+.bulk-input {
+  width: 64px;
+  padding: 6px 10px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-input);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono); font-size: var(--t-md);
+  font-weight: 600;
+  text-align: center;
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.bulk-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.divider-v { width: 1px; height: 20px; background: var(--border); }
+.avail-row { display:flex; align-items:center; gap:8px; }
+.avail-label {
+  font-size: var(--t-sm); color: var(--fg-secondary); font-weight: 500;
+}
+.avail-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  font-weight: 600; color: var(--accent);
+}
+.avail-chip .ac-key { color: var(--fg-tertiary); font-weight: 500; }
+
+/* ============================================================
+   STEPS TABLE — from old screen, reskinned
+   ============================================================ */
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--t-md);
+}
+.data-table th, .data-table td {
+  text-align: left;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.data-table tr:last-child td { border-bottom: 0; }
+.data-table th {
+  font-size: var(--t-xs); font-weight: 600; color: var(--fg-tertiary);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  background: var(--bg-surface-2);
+}
+.data-table td.col-step {
+  font-family: var(--font-mono); font-weight: 700;
+  color: var(--accent); width: 60px;
+}
+.data-table td.col-time {
+  font-family: var(--font-mono); color: var(--fg-secondary); width: 130px;
+}
+.data-table td.col-dev { width: 110px; }
+.role-tag {
+  display:inline-flex; align-items:center;
+  padding: 2px 10px; border-radius: var(--r-pill);
+  font-family: var(--font-mono); font-size: var(--t-xs); font-weight: 600;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border);
+  color: var(--fg-secondary);
+}
+.role-tag.mo { background: color-mix(in srgb, var(--status-progress) 12%, transparent); color: var(--status-progress); border-color: color-mix(in srgb, var(--status-progress) 28%, transparent); }
+.role-tag.mt { background: color-mix(in srgb, #A78BFA 14%, transparent); color: #7c5cf3; border-color: color-mix(in srgb, #A78BFA 28%, transparent); }
+.role-tag.verify { background: color-mix(in srgb, var(--status-cancel) 14%, transparent); color: var(--status-cancel); border-color: color-mix(in srgb, var(--status-cancel) 28%, transparent); }
+
+/* ============================================================
+   ARTIFACTS ACCORDION
+   ============================================================ */
+.acc-head {
+  width: 100%;
+  display:flex; align-items:center; gap: 10px;
+  padding: 14px 22px;
+  background: transparent; border: 0;
+  cursor: pointer; text-align: left;
+  font-size: var(--t-md); font-weight: 700;
+  color: var(--fg-primary);
+  border-top: 1px solid var(--border);
+  transition: background .12s;
+}
+.acc-head:hover { background: var(--bg-hover); }
+.acc-chev { transition: transform .2s; color: var(--fg-tertiary); }
+.acc.open .acc-chev { transform: rotate(90deg); color: var(--accent); }
+.acc-count {
+  margin-left: auto;
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  padding: 2px 8px; border-radius: var(--r-pill);
+  background: var(--accent-soft); color: var(--accent);
+  font-weight: 600;
+}
+.acc-body {
+  display: none;
+  padding: 6px 22px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface-2);
+}
+.acc.open .acc-body { display: block; }
+.art-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-top: 14px; }
+.art-chip {
+  display:flex; align-items:center; gap:10px;
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer; text-align: left;
+  color: var(--fg-secondary);
+  transition: all .15s;
+}
+.art-chip:hover { border-color: var(--border-strong); }
+.art-chip.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.art-chip-mark {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 5px;
+  display: grid; place-items: center;
+  background: var(--bg-surface); flex-shrink: 0;
+}
+.art-chip.on .art-chip-mark { background: var(--accent); border-color: var(--accent); color: #fff; }
+.art-chip-label { font-family: var(--font-mono); font-size: var(--t-sm); font-weight: 600; }
+
+/* ============================================================
+   FOOTER ACTION BAR
+   ============================================================ */
+.cfg-foot {
+  display:flex; justify-content: space-between; align-items: center;
+  margin-top: 20px;
+}
+.cfg-foot-right { display:flex; gap:10px; }
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 10px 20px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  color: var(--fg-primary);
+  font-size: var(--t-md); font-weight: 600;
+  cursor: pointer; transition: all .15s;
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accent-hover); border-color: var(--accent-hover);
+  box-shadow: var(--shadow-pink);
+}
+.btn:disabled, .btn[aria-disabled="true"] {
+  opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none;
+  background: var(--bg-surface);
+}
+.btn-primary:disabled, .btn-primary[aria-disabled="true"] {
+  background: color-mix(in srgb, var(--accent) 35%, var(--bg-surface));
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ============================================================
+   RIGHT SUMMARY PANEL
+   ============================================================ */
+.cfg-summary {
+  position: sticky; top: 88px; align-self: start;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.summary-eyebrow {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  color: var(--fg-tertiary); text-transform: uppercase;
+  letter-spacing: 0.08em; font-weight: 600;
+}
+.cfg-summary h2 {
+  font-size: var(--t-xl); margin: 6px 0 18px;
+  font-weight: 800; letter-spacing: -0.02em;
+}
+.summary-rows {
+  display:flex; flex-direction: column; gap: 10px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+.summary-row {
+  display:flex; justify-content: space-between; align-items: baseline;
+  font-size: var(--t-md);
+}
+.summary-row .lbl { color: var(--fg-tertiary); }
+.summary-row .val { font-weight: 700; }
+.summary-section { margin-top: 18px; }
+.summary-section .summary-eyebrow { margin-bottom: 12px; display:block; }
+
+.action-tl { display:flex; flex-direction:column; gap: 8px; }
+.tl-node {
+  display:flex; align-items:center; gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: var(--t-sm);
+}
+.tl-dot {
+  width: 16px; height: 16px; border-radius: var(--r-pill);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+}
+.tl-node.active .tl-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.tl-human { font-weight: 500; }
+.tl-edge {
+  width: 1px; height: 8px; background: var(--border);
+  margin-left: 19px;
+}
+.summary-explain { margin-top: 18px; }
+.summary-explain summary {
+  cursor: pointer; color: var(--accent);
+  font-size: var(--t-sm); font-weight: 600;
+  list-style: none;
+  display:flex; align-items:center; gap:6px;
+}
+.summary-explain summary::-webkit-details-marker { display:none; }
+.summary-explain p {
+  margin: 10px 0 0; font-size: var(--t-sm);
+  color: var(--fg-secondary); line-height: 1.55;
+}
+
+/* ============================================================
+   DEVICE PICKER MODAL
+   ============================================================ */
+.modal-shade {
+  position: fixed; inset: 0;
+  background: rgba(13,12,34,0.45);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 50;
+}
+.modal-shade.open { display: flex; }
+.modal {
+  width: 480px; max-width: calc(100vw - 32px);
+  background: var(--bg-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.modal-head {
+  display:flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+}
+.modal-head h3 { margin:0; font-size: var(--t-lg); font-weight: 700; }
+.modal-close {
+  width: 30px; height: 30px; border-radius: var(--r-pill);
+  background: transparent; border: 0;
+  display: grid; place-items: center;
+  color: var(--fg-tertiary); cursor: pointer;
+}
+.modal-close:hover { background: var(--bg-hover); color: var(--fg-primary); }
+.dev-option {
+  width: 100%;
+  display:flex; align-items:center; gap: 12px;
+  padding: 14px 22px;
+  background: transparent; border: 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; text-align: left;
+  transition: background .12s;
+}
+.dev-option:hover { background: var(--bg-hover); }
+.dev-option:last-child { border-bottom: 0; }
+.dev-option-main { flex: 1; }
+.dev-option-name { font-size: var(--t-md); font-weight: 600; }
+.dev-option-meta { font-family: var(--font-mono); font-size: var(--t-xs); color: var(--fg-tertiary); margin-top: 3px; }
+.dev-option-os {
+  font-family: var(--font-mono); font-size: 10.5px;
+  background: var(--bg-surface-2); padding: 3px 8px; border-radius: var(--r-pill);
+  color: var(--fg-tertiary); font-weight: 500;
+}
+
+/* ============================================================
+   PRINT-FRIENDLY
+   ============================================================ */
+@media print {
+  .topbar, .modal-shade { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────────────── TOPBAR ─────────────────── -->
+<header class="topbar">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <span class="crumb">Test Cases</span>
+    <span class="crumb-sep">›</span>
+    <span class="crumb crumb-last">Remote VoIP Call</span>
+  </nav>
+  <div class="topbar-right">
+    <button class="search-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      Search runs, devices…
+      <kbd>⌘K</kbd>
+    </button>
+    <button class="icon-btn" aria-label="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="ping"></span>
+    </button>
+    <button class="icon-btn" aria-label="Toggle theme" id="theme-toggle">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ─────────────────── PAGE ─────────────────── -->
+<main class="page" data-screen-label="Remote VoIP — Configure">
+  <div class="page-head">
+    <div>
+      <div class="page-eyebrow">Configure</div>
+      <h1>Remote VoIP Call</h1>
+      <div class="page-sub">Backend type <span class="mono">VOIP_MO_MT</span> · 2 devices · ~45 s / iteration</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="cfg-grid">
+
+    <!-- ─── STEPPER RAIL ─── -->
+    <aside class="cfg-rail">
+      <button class="cfg-step active"><span class="cfg-step-num">1</span><span>Devices</span></button>
+      <button class="cfg-step"><span class="cfg-step-num">2</span><span>Parameters</span></button>
+      <button class="cfg-step"><span class="cfg-step-num">3</span><span>Artifacts</span></button>
+      <button class="cfg-step"><span class="cfg-step-num">4</span><span>Review</span></button>
+    </aside>
+
+    <!-- ─── BODY ─── -->
+    <div class="cfg-body">
+
+      <!-- Devices card with the two-phone visual + steps table + artifacts -->
+      <div class="card">
+
+        <div class="card-head">
+          <h3>Devices</h3>
+          <span class="summary-eyebrow">Pick MO and VoIP MT</span>
+        </div>
+
+        <!-- Toolbar: bulk size + availability counters (from old screen) -->
+        <div class="dev-toolbar">
+          <span class="dev-toolbar-label">Bulk size</span>
+          <input class="bulk-input" type="number" min="1" max="500" value="1" />
+          <div class="divider-v"></div>
+          <div class="avail-row">
+            <span class="avail-label">Available devices:</span>
+            <span class="avail-chip"><span class="ac-key">MO</span> <span>0</span></span>
+            <span class="avail-chip"><span class="ac-key">MT</span> <span>8</span></span>
+          </div>
+        </div>
+
+        <!-- The two-phone stage -->
+        <div class="dev-stage">
+
+          <!-- Phone 1: Remote MO -->
+          <div class="dev-slot-card is-empty" data-slot="mo">
+            <span class="dev-slot-tag">
+              <span class="role-dot"></span>
+              EXTERNAL_MO
+            </span>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="phone-placeholder-label">No device assigned</div>
+                <button class="dev-pick-cta" data-open-picker="mo">
+                  <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                  Select Remote MO Device
+                </button>
+              </div>
+            </div>
+            <div class="dev-filled-meta">External device · RabbitMQ</div>
+          </div>
+
+          <!-- Phone 2: VoIP MT -->
+          <div class="dev-slot-card is-empty" data-slot="mt">
+            <span class="dev-slot-tag">
+              <span class="role-dot"></span>
+              VOIP_MT
+            </span>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="phone-placeholder-label">No DID assigned</div>
+                <button class="dev-pick-cta" data-open-picker="mt">
+                  <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                  Select VoIP MT Device
+                </button>
+              </div>
+            </div>
+            <div class="dev-filled-meta">AWS Connect DID</div>
+          </div>
+
+        </div>
+
+        <!-- Steps table -->
+        <table class="data-table" aria-label="Iteration steps">
+          <thead>
+            <tr>
+              <th>Steps</th>
+              <th>Time Taken</th>
+              <th>Device</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-step">1</td>
+              <td class="col-time">00:30:000</td>
+              <td class="col-dev"><span class="role-tag mo">MO</span></td>
+              <td>MO dials to MT</td>
+            </tr>
+            <tr>
+              <td class="col-step">2</td>
+              <td class="col-time">00:05:000</td>
+              <td class="col-dev"><span class="role-tag verify">Verify</span></td>
+              <td>Verify Connected state</td>
+            </tr>
+            <tr>
+              <td class="col-step">3</td>
+              <td class="col-time">00:20:000</td>
+              <td class="col-dev"><span class="role-tag mt">MT</span></td>
+              <td>MT ends call</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Artifacts accordion -->
+        <div class="acc" id="art-acc">
+          <button class="acc-head" id="art-toggle">
+            <svg class="acc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            Artifacts
+            <span class="acc-count">3 selected</span>
+          </button>
+          <div class="acc-body">
+            <div class="art-grid">
+              <button class="art-chip on"><span class="art-chip-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span class="art-chip-label">CALL_LOG</span></button>
+              <button class="art-chip on"><span class="art-chip-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span class="art-chip-label">VIDEO</span></button>
+              <button class="art-chip on"><span class="art-chip-mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span class="art-chip-label">NETWORK_KPI</span></button>
+              <button class="art-chip"><span class="art-chip-mark"></span><span class="art-chip-label">DEVICE_LOG</span></button>
+              <button class="art-chip"><span class="art-chip-mark"></span><span class="art-chip-label">USER_ACTION</span></button>
+              <button class="art-chip"><span class="art-chip-mark"></span><span class="art-chip-label">DEVICE_KPI</span></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="cfg-foot">
+        <div></div>
+        <div class="cfg-foot-right">
+          <button class="btn">Save</button>
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            Schedule…
+          </button>
+          <button class="btn btn-primary" id="primary-action" aria-disabled="true">
+            Continue
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── RIGHT SUMMARY ─── -->
+    <aside class="cfg-summary">
+      <div class="summary-eyebrow">Test summary</div>
+      <h2>Remote VoIP</h2>
+
+      <div class="summary-rows">
+        <div class="summary-row"><span class="lbl">Type</span><b class="val mono">VOIP_MO_MT</b></div>
+        <div class="summary-row"><span class="lbl">Devices</span><b class="val" id="dev-count">0 / 2</b></div>
+        <div class="summary-row"><span class="lbl">Iterations</span><b class="val mono">1</b></div>
+        <div class="summary-row"><span class="lbl">Artifacts</span><b class="val mono">3</b></div>
+        <div class="summary-row"><span class="lbl">Est. duration</span><b class="val mono">~45 s / iter</b></div>
+      </div>
+
+      <div class="summary-section">
+        <span class="summary-eyebrow">Action timeline</span>
+        <div class="action-tl">
+          <div class="tl-node"><span class="tl-dot"></span><span class="tl-human">MO dials MT (AWS DID)</span></div>
+          <span class="tl-edge"></span>
+          <div class="tl-node"><span class="tl-dot"></span><span class="tl-human">Verify connected state</span></div>
+          <span class="tl-edge"></span>
+          <div class="tl-node"><span class="tl-dot"></span><span class="tl-human">MT ends call</span></div>
+        </div>
+      </div>
+
+      <details class="summary-explain">
+        <summary>▸ What happens when I press Start?</summary>
+        <p>RabbitMQ sends a DIAL command to the external device's <span class="mono">.xperf-testing</span> queue. AWS Connect routes the inbound call to the assigned DID. We watch <span class="mono">xperf-call-states</span> for connected → disconnect transitions. Artifacts upload to S3 after the run.</p>
+      </details>
+    </aside>
+
+  </div>
+</main>
+
+<!-- ─── DEVICE PICKER MODAL ─── -->
+<div class="modal-shade" id="picker">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="picker-title">Pick a device</h3>
+      <button class="modal-close" id="picker-close" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="picker-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── Theme toggle ───
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+});
+
+// ─── Device picker ───
+const DEVICES = {
+  mo: [
+    { id:'ext1', name:'External MO #01', os:'Android 14', state:'online', sn:'SN-RMQ-001', meta:'us-west-2 · rmq-pool-a' },
+    { id:'ext2', name:'External MO #02', os:'Android 13', state:'online', sn:'SN-RMQ-014', meta:'us-east-1 · rmq-pool-b' },
+    { id:'ext3', name:'External MO #07', os:'Android 14', state:'busy',   sn:'SN-RMQ-027', meta:'eu-west-1 · in use' },
+  ],
+  mt: [
+    { id:'mt1', name:'+1 415-555-0150', os:'AWS DID', state:'online', sn:'arn:aws:connect:…/0150', meta:'US · TOLL_FREE' },
+    { id:'mt2', name:'+1 628-555-0188', os:'AWS DID', state:'online', sn:'arn:aws:connect:…/0188', meta:'US · DID' },
+    { id:'mt3', name:'+44 20 7946-0100', os:'AWS DID', state:'online', sn:'arn:aws:connect:…/0100', meta:'UK · DID' },
+    { id:'mt4', name:'+1 415-555-0205', os:'AWS DID', state:'online', sn:'arn:aws:connect:…/0205', meta:'US · DID' },
+  ]
+};
+const LABELS = {
+  mo: { title: 'Pick a Remote MO device', name: 'Select Remote MO Device' },
+  mt: { title: 'Pick a VoIP MT DID', name: 'Select VoIP MT Device' },
+};
+const picked = { mo: null, mt: null };
+
+const picker = document.getElementById('picker');
+const pickerBody = document.getElementById('picker-body');
+const pickerTitle = document.getElementById('picker-title');
+
+function openPicker(slot){
+  pickerTitle.textContent = LABELS[slot].title;
+  pickerBody.innerHTML = DEVICES[slot].map(d => `
+    <button class="dev-option" data-id="${d.id}">
+      <span class="dev-state dev-${d.state}"></span>
+      <div class="dev-option-main">
+        <div class="dev-option-name">${d.name}</div>
+        <div class="dev-option-meta">${d.sn} · ${d.meta}</div>
+      </div>
+      <span class="dev-option-os">${d.os}</span>
+    </button>
+  `).join('');
+  pickerBody.querySelectorAll('.dev-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dev = DEVICES[slot].find(x => x.id === btn.dataset.id);
+      picked[slot] = dev;
+      renderSlot(slot);
+      closePicker();
+      updateState();
+    });
+  });
+  picker.classList.add('open');
+}
+function closePicker(){ picker.classList.remove('open'); }
+
+document.querySelectorAll('[data-open-picker]').forEach(b => {
+  b.addEventListener('click', () => openPicker(b.dataset.openPicker));
+});
+document.getElementById('picker-close').addEventListener('click', closePicker);
+picker.addEventListener('click', (e) => { if (e.target === picker) closePicker(); });
+
+function renderSlot(slot){
+  const card = document.querySelector(`.dev-slot-card[data-slot="${slot}"]`);
+  const screen = card.querySelector('.phone-screen');
+  const placeholder = card.querySelector('.phone-placeholder-label');
+  const ctaWrap = card.querySelector('.dev-pick-cta, .dev-filled');
+  const dev = picked[slot];
+  card.classList.toggle('is-empty', !dev);
+  card.classList.toggle('is-filled', !!dev);
+
+  if (dev) {
+    placeholder.textContent = slot === 'mo' ? 'External device · connected' : 'AWS Connect DID · ready';
+    const node = document.createElement('div');
+    node.className = 'dev-filled';
+    node.setAttribute('data-open-picker', slot);
+    node.innerHTML = `
+      <div class="dev-filled-row">
+        <span class="dev-state dev-${dev.state}"></span>
+        <span class="dev-filled-name">${dev.name}</span>
+        <span class="dev-filled-os">${dev.os}</span>
+      </div>
+      <div class="dev-filled-meta">${dev.sn}</div>
+    `;
+    ctaWrap.replaceWith(node);
+    node.addEventListener('click', () => openPicker(slot));
+  } else {
+    placeholder.textContent = slot === 'mo' ? 'No device assigned' : 'No DID assigned';
+    const cta = document.createElement('button');
+    cta.className = 'dev-pick-cta';
+    cta.dataset.openPicker = slot;
+    cta.innerHTML = `
+      <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      ${LABELS[slot].name}
+    `;
+    ctaWrap.replaceWith(cta);
+    cta.addEventListener('click', () => openPicker(slot));
+  }
+}
+
+function updateState(){
+  const filled = Object.values(picked).filter(Boolean).length;
+  document.getElementById('dev-count').textContent = `${filled} / 2`;
+  const primary = document.getElementById('primary-action');
+  primary.setAttribute('aria-disabled', filled < 2 ? 'true' : 'false');
+}
+
+// ─── Artifacts accordion ───
+const acc = document.getElementById('art-acc');
+document.getElementById('art-toggle').addEventListener('click', () => acc.classList.toggle('open'));
+
+// ─── Artifact chips toggle ───
+document.querySelectorAll('.art-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    c.classList.toggle('on');
+    const mark = c.querySelector('.art-chip-mark');
+    if (c.classList.contains('on') && !mark.innerHTML.trim()) {
+      mark.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>';
+    } else if (!c.classList.contains('on')) {
+      mark.innerHTML = '';
+    }
+    const n = document.querySelectorAll('.art-chip.on').length;
+    document.querySelector('.acc-count').textContent = `${n} selected`;
+    document.querySelector('.summary-row:nth-child(4) .val').textContent = String(n);
+  });
+});
+
+// ─── Stepper ───
+document.querySelectorAll('.cfg-step').forEach((s, i, all) => {
+  s.addEventListener('click', () => {
+    all.forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
